@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "sTwh4PbaoIOQTSiVR9H3eGpG5e0K4CNDC3T4tNC0+T+8rM/qoeL8PgRXnaau12VTRgHmQziD6UAjk/1j7lCW7w==",
+  "success": true,
+  "projectFilePath": "C:\\git\\gnllucena\\bootstrapper\\src\\console\\Console.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\gnllu\\.nuget\\packages\\fluentvalidation\\9.2.2\\fluentvalidation.9.2.2.nupkg.sha512"
+  ],
+  "logs": []
+}
