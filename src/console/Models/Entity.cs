@@ -2,9 +2,9 @@
 
 namespace Console.Models
 {
-    public class Rule
+    public class Entity
     {
-        public string Entity { get; set; }
+        public string Name { get; set; }
         public string Table { get; set; }
         public IList<Property> Properties { get; set; }
     }

@@ -1,6 +1,6 @@
 [
   {
-    "Entity": "User",
+    "Name": "User",
     "Table": "user",
     "Properties": [
       {
@@ -17,27 +17,15 @@
         "Validations": [
           {
             "Type": "MinLenght",
-            "Value": "1",
-            "Depends": {
-              "On": "None",
-              "When": "None"
-            }
+            "Value": "1"
           },
           {
             "Type": "MaxLenght",
-            "Value": "100",
-            "Depends": {
-              "On": "None",
-              "When": "None"
-            }
+            "Value": "100"
           },
           {
             "Type": "Required",
-            "Value": null,
-            "Depends": {
-              "On": "None",
-              "When": "None"
-            }
+            "Value": null
           }
         ]
       },
@@ -49,35 +37,19 @@
         "Validations": [
           {
             "Type": "MinLenght",
-            "Value": "5",
-            "Depends": {
-              "On": "None",
-              "When": "None"
-            }
+            "Value": "5"
           },
           {
             "Type": "MaxLenght",
-            "Value": "100",
-            "Depends": {
-              "On": "None",
-              "When": "None"
-            }
+            "Value": "100"
           },
           {
             "Type": "Required",
-            "Value": null,
-            "Depends": {
-              "On": "None",
-              "When": "None"
-            }
+            "Value": null
           },
           {
             "Type": "Email",
-            "Value": null,
-            "Depends": {
-              "On": "None",
-              "When": "None"
-            }
+            "Value": null
           }
         ]
       },
@@ -89,35 +61,15 @@
         "Validations": [
           {
             "Type": "MinLenght",
-            "Value": "8",
-            "Depends": {
-              "On": "None",
-              "When": "None"
-            }
+            "Value": "8"
           },
           {
             "Type": "MaxLenght",
-            "Value": "30",
-            "Depends": {
-              "On": "None",
-              "When": "None"
-            }
+            "Value": "30"
           },
           {
             "Type": "Required",
-            "Value": null,
-            "Depends": {
-              "On": "None",
-              "When": "None"
-            }
-          },
-          {
-            "Type": "Password",
-            "Value": null,
-            "Depends": {
-              "On": "None",
-              "When": "None"
-            }
+            "Value": null
           }
         ]
       },
@@ -125,33 +77,13 @@
         "Name": "Active",
         "Column": "active",
         "Primitive": "boolean",
-        "Nullable": false,
-        "Validations": [
-          {
-            "Type": "Required",
-            "Value": null,
-            "Depends": {
-              "On": "None",
-              "When": "None"
-            }
-          }
-        ]
+        "Nullable": false
       },
       {
         "Name": "Confirmed",
         "Column": "Confirmed",
         "Primitive": "boolean",
-        "Nullable": false,
-        "Validations": [
-          {
-            "Type": "Required",
-            "Value": null,
-            "Depends": {
-              "On": "None",
-              "When": "None"
-            }
-          }
-        ]
+        "Nullable": false
       },
       {
         "Name": "Created",
@@ -161,11 +93,7 @@
         "Validations": [
           {
             "Type": "Required",
-            "Value": null,
-            "Depends": {
-              "On": "None",
-              "When": "None"
-            }
+            "Value": null
           }
         ]
       },
@@ -177,11 +105,7 @@
         "Validations": [
           {
             "Type": "Required",
-            "Value": null,
-            "Depends": {
-              "On": "None",
-              "When": "None"
-            }
+            "Value": null
           }
         ]
       },
@@ -196,7 +120,7 @@
             "Value": null,
             "Depends": {
               "On": "Id",
-              "When": "GreatedThanZero"
+              "When": "GreaterThanZero"
             }
           }
         ]
@@ -212,7 +136,7 @@
             "Value": null,
             "Depends": {
               "On": "Id",
-              "When": "GreatedThanZero"
+              "When": "GreaterThanZero"
             }
           }
         ]
