@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Console.Validations.Extensions
+namespace Console.Validators.Extensions
 {
     public static class Extensions
     {

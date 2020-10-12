@@ -1,8 +1,8 @@
 ﻿using FluentValidation.Validators;
 
-namespace Console.Validations.Extensions
+namespace Console.Validators.Extensions
 {
-    public class NumericValidator : PropertyValidator
+    public class NumericValidator : FluentValidation.Validators.PropertyValidator
     {
         public NumericValidator() : base("{PropertyName} is not a number")
         {

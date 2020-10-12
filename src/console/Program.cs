@@ -1,4 +1,7 @@
-﻿using Console.Services;
+﻿using Console.Models;
+using Console.Services;
+using Console.Validators;
+using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,7 +25,17 @@ namespace Console
             })
             .ConfigureServices((hostContext, services) =>
             {
+                services.AddSingleton<IValidator<Project>, ProjectValidator>();
+                services.AddSingleton<IValidator<Depends>, DependsValidator>();
+                services.AddSingleton<IValidator<Entity>, EntityValidator>();
+                services.AddSingleton<IValidator<Property>, PropertyValidator>();
+                services.AddSingleton<IValidator<Validation>, ValidationValidator>();
+
                 services.AddTransient<IOrchestratorService, OrchestratorService>();
+                services.AddTransient<IClassService, ClassService>();
+                services.AddTransient<IRepositoryService, RepositoryService>();
+                services.AddTransient<IQueryService, QueryService>();
+                services.AddTransient<IServiceService, ServiceService>();
             })
             .UseSerilog()
             .Build();

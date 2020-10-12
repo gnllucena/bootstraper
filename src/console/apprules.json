@@ -1,146 +1,149 @@
-[
-  {
-    "Name": "User",
-    "Table": "user",
-    "Properties": [
-      {
-        "Name": "Id",
-        "Column": "id",
-        "Primitive": "int",
-        "Nullable": false
-      },
-      {
-        "Name": "Name",
-        "Column": "name",
-        "Primitive": "string",
-        "Nullable": false,
-        "Validations": [
-          {
-            "Type": "MinLenght",
-            "Value": "1"
-          },
-          {
-            "Type": "MaxLenght",
-            "Value": "100"
-          },
-          {
-            "Type": "Required",
-            "Value": null
-          }
-        ]
-      },
-      {
-        "Name": "Email",
-        "Column": "email",
-        "Primitive": "string",
-        "Nullable": false,
-        "Validations": [
-          {
-            "Type": "MinLenght",
-            "Value": "5"
-          },
-          {
-            "Type": "MaxLenght",
-            "Value": "100"
-          },
-          {
-            "Type": "Required",
-            "Value": null
-          },
-          {
-            "Type": "Email",
-            "Value": null
-          }
-        ]
-      },
-      {
-        "Name": "Password",
-        "Column": "password",
-        "Primitive": "string",
-        "Nullable": false,
-        "Validations": [
-          {
-            "Type": "MinLenght",
-            "Value": "8"
-          },
-          {
-            "Type": "MaxLenght",
-            "Value": "30"
-          },
-          {
-            "Type": "Required",
-            "Value": null
-          }
-        ]
-      },
-      {
-        "Name": "Active",
-        "Column": "active",
-        "Primitive": "boolean",
-        "Nullable": false
-      },
-      {
-        "Name": "Confirmed",
-        "Column": "Confirmed",
-        "Primitive": "boolean",
-        "Nullable": false
-      },
-      {
-        "Name": "Created",
-        "Column": "created",
-        "Primitive": "datetime",
-        "Nullable": false,
-        "Validations": [
-          {
-            "Type": "Required",
-            "Value": null
-          }
-        ]
-      },
-      {
-        "Name": "CreatedBy",
-        "Column": "createdby",
-        "Primitive": "string",
-        "Nullable": false,
-        "Validations": [
-          {
-            "Type": "Required",
-            "Value": null
-          }
-        ]
-      },
-      {
-        "Name": "Updated",
-        "Column": "updated",
-        "Primitive": "datetime",
-        "Nullable": true,
-        "Validations": [
-          {
-            "Type": "Required",
-            "Value": null,
-            "Depends": {
-              "On": "Id",
-              "When": "GreaterThanZero"
+{
+  "Name": "API.Identity",
+  "Entities": [
+    {
+      "Name": "User",
+      "Table": "user",
+      "Properties": [
+        {
+          "Name": "Id",
+          "Column": "id",
+          "Primitive": "int",
+          "Nullable": true
+        },
+        {
+          "Name": "Name",
+          "Column": "name",
+          "Primitive": "string",
+          "Nullable": false,
+          "Validations": [
+            {
+              "Type": "MinLenght",
+              "Value": "1"
+            },
+            {
+              "Type": "MaxLenght",
+              "Value": "100"
+            },
+            {
+              "Type": "Required",
+              "Value": null
             }
-          }
-        ]
-      },
-      {
-        "Name": "UpdatedBy",
-        "Column": "updatedby",
-        "Primitive": "string",
-        "Nullable": true,
-        "Validations": [
-          {
-            "Type": "Required",
-            "Value": null,
-            "Depends": {
-              "On": "Id",
-              "When": "GreaterThanZero"
+          ]
+        },
+        {
+          "Name": "Email",
+          "Column": "email",
+          "Primitive": "string",
+          "Nullable": false,
+          "Validations": [
+            {
+              "Type": "MinLenght",
+              "Value": "5"
+            },
+            {
+              "Type": "MaxLenght",
+              "Value": "100"
+            },
+            {
+              "Type": "Required",
+              "Value": null
+            },
+            {
+              "Type": "Email",
+              "Value": null
             }
-          }
-        ]
-      }
-    ]
-  }
-]
+          ]
+        },
+        {
+          "Name": "Password",
+          "Column": "password",
+          "Primitive": "string",
+          "Nullable": false,
+          "Validations": [
+            {
+              "Type": "MinLenght",
+              "Value": "8"
+            },
+            {
+              "Type": "MaxLenght",
+              "Value": "30"
+            },
+            {
+              "Type": "Required",
+              "Value": null
+            }
+          ]
+        },
+        {
+          "Name": "Active",
+          "Column": "active",
+          "Primitive": "boolean",
+          "Nullable": false
+        },
+        {
+          "Name": "Confirmed",
+          "Column": "Confirmed",
+          "Primitive": "boolean",
+          "Nullable": false
+        },
+        {
+          "Name": "Created",
+          "Column": "created",
+          "Primitive": "datetime",
+          "Nullable": false,
+          "Validations": [
+            {
+              "Type": "Required",
+              "Value": null
+            }
+          ]
+        },
+        {
+          "Name": "CreatedBy",
+          "Column": "createdby",
+          "Primitive": "string",
+          "Nullable": false,
+          "Validations": [
+            {
+              "Type": "Required",
+              "Value": null
+            }
+          ]
+        },
+        {
+          "Name": "Updated",
+          "Column": "updated",
+          "Primitive": "datetime",
+          "Nullable": true,
+          "Validations": [
+            {
+              "Type": "Required",
+              "Value": null,
+              "Depends": {
+                "On": "Id",
+                "When": "GreaterThenZero"
+              }
+            }
+          ]
+        },
+        {
+          "Name": "UpdatedBy",
+          "Column": "updatedby",
+          "Primitive": "string",
+          "Nullable": true,
+          "Validations": [
+            {
+              "Type": "Required",
+              "Value": null,
+              "Depends": {
+                "On": "Id",
+                "When": "GreaterThenZero"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

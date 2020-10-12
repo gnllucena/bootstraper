@@ -2,9 +2,9 @@
 using FluentValidation;
 using System.Collections.Generic;
 
-namespace Console.Validations
+namespace Console.Validators
 {
-    public class DependsValidation : AbstractValidator<Depends>
+    public class DependsValidator : AbstractValidator<Depends>
     {
         private readonly List<string> whens = new List<string>
         {
@@ -14,22 +14,22 @@ namespace Console.Validations
             "notempty",
         };
 
-        public DependsValidation()
+        public DependsValidator()
         {
             RuleFor(x => x.On)
                 .NotEmpty()
                 .When(x => !string.IsNullOrWhiteSpace(x.When))
-                .WithMessage("Depends' on and when must be informed together");
+                .WithMessage(x => $"Depends' \"on\" and \"when\" must be informed together");
 
             RuleFor(x => x.When)
                 .NotEmpty()
                 .When(x => !string.IsNullOrWhiteSpace(x.On))
-                .WithMessage("Depends' on and when must be informed together");
+                .WithMessage(x => $"Depends' \"on\" and \"when\" must be informed together");
 
             RuleFor(x => x.When)
                 .Must(x => whens.Contains(x.ToLower()))
                 .When(x => !string.IsNullOrWhiteSpace(x.When))
-                .WithMessage($"Depends' \"when\" does not match allowed values: {string.Join(", ", whens)}");
+                .WithMessage(x => $"Depends' \"when\" has a value not allowed. Allowed values: {string.Join(", ", whens)}");
         }
     }
 }

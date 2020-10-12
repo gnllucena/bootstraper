@@ -1,11 +1,11 @@
 ﻿using Console.Models;
-using Console.Validations.Extensions;
+using Console.Validators.Extensions;
 using FluentValidation;
 using System.Collections.Generic;
 
-namespace Console.Validations
+namespace Console.Validators
 {
-    public class ValidationValidation : AbstractValidator<Validation>
+    public class ValidationValidator : AbstractValidator<Validation>
     {
         private readonly List<string> types = new List<string>
         {
@@ -31,25 +31,25 @@ namespace Console.Validations
             "maxlenght"
         };
 
-        public ValidationValidation()
+        public ValidationValidator()
         {
             RuleFor(x => x.Type)
                 .NotEmpty()
-                .WithMessage("Validation's type must be informed");
+                .WithMessage(x => $"Validation's \"type\" must be informed for \"{x.Value}\" validation");
 
             RuleFor(x => x.Type)
                 .Must(x => types.Contains(x.ToLower()))
-                .WithMessage($"Validation's type must be one of '{string.Join(", ", types)}'");
+                .WithMessage(x => $"Validation's \"type\" not allowed for \"{x.Value}\" validation. Allowed values: {string.Join(", ", types)}");
 
             RuleFor(x => x.Value)
                 .NotEmpty()
                 .When(x => dependenciesOnValue.Contains(x.Type.ToLower()))
-                .WithMessage("Validation's value must be informed");
+                .WithMessage(x => $"Validation's \"value\" must be informed for \"{x.Type}\" validation");
 
             RuleFor(x => x.Value)
                 .ValidNumber()
                 .When(x => dependenciesOnNumeralValue.Contains(x.Type.ToLower()))
-                .WithMessage("Validation's value must be a number");
+                .WithMessage(x => $"Validation's \"value\" must be a number for \"{x.Type}\" validation");
         }
     }
 }
