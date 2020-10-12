@@ -36,6 +36,8 @@ namespace Console
                 services.AddTransient<IRepositoryService, RepositoryService>();
                 services.AddTransient<IQueryService, QueryService>();
                 services.AddTransient<IServiceService, ServiceService>();
+                services.AddTransient<IControllerService, ControllerService>();
+                services.AddTransient<IValidatorService, ValidatorService>();
             })
             .UseSerilog()
             .Build();

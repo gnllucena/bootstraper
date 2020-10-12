@@ -28,6 +28,8 @@ namespace Console.Services
         private readonly IQueryService _queryService;
         private readonly IRepositoryService _repositoryService;
         private readonly IServiceService _serviceService;
+        private readonly IValidatorService _validatorService;
+        private readonly IControllerService _controllerService;
 
         public OrchestratorService(
             ILogger<OrchestratorService> logger,
@@ -39,7 +41,9 @@ namespace Console.Services
             IClassService classService,
             IQueryService queryService,
             IRepositoryService repositoryService,
-            IServiceService serviceService)
+            IServiceService serviceService,
+            IValidatorService validatorService,
+            IControllerService controllerService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _projectValidator = projectValidator ?? throw new ArgumentNullException(nameof(projectValidator));
@@ -51,6 +55,8 @@ namespace Console.Services
             _queryService = queryService ?? throw new ArgumentNullException(nameof(queryService));
             _repositoryService = repositoryService ?? throw new ArgumentNullException(nameof(repositoryService));
             _serviceService = serviceService ?? throw new ArgumentNullException(nameof(serviceService));
+            _validatorService = validatorService ?? throw new ArgumentNullException(nameof(validatorService));
+            _controllerService = controllerService ?? throw new ArgumentNullException(nameof(controllerService));
         }
 
         public async Task OrchestrateAsync()
@@ -61,7 +67,7 @@ namespace Console.Services
 
             try
             {
-                using var stream = File.OpenRead("./apprules.json");
+                using var stream = File.OpenRead("./appproject.json");
 
                 project = await JsonSerializer.DeserializeAsync<Project>(stream);
             }
@@ -81,6 +87,10 @@ namespace Console.Services
             await _queryService.GenerateAsync(project);
             await _repositoryService.GenerateAsync(project);
             await _serviceService.GenerateAsync(project);
+            await _validatorService.GenerateAsync(project);
+            await _controllerService.GenerateAsync(project);
+
+            _logger.LogDebug("End of process");
         }
 
         private bool HasErrorsOnJson(Project project)
