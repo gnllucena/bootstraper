@@ -1,4 +1,5 @@
-﻿using Console.Models;
+﻿using console.Models;
+using Console.Models;
 using Console.Services;
 using Console.Validators;
 using FluentValidation;
@@ -38,6 +39,7 @@ namespace Console
                 services.AddTransient<IServiceService, ServiceService>();
                 services.AddTransient<IControllerService, ControllerService>();
                 services.AddTransient<IValidatorService, ValidatorService>();
+                services.AddTransient<IFileService, FileService>();
             })
             .UseSerilog()
             .Build();
@@ -55,7 +57,10 @@ namespace Console
 
                 var orchestrator = host.Services.GetService<IOrchestratorService>();
 
-                await orchestrator.OrchestrateAsync();
+                await orchestrator.OrchestrateAsync(new Configuration() {
+                    File = "./appproject.json",
+                    Output = "/output/"
+                });
             }
             finally
             {

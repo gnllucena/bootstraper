@@ -1,4 +1,5 @@
 ﻿using Console.Models;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -6,14 +7,14 @@ namespace Console.Services
 {
     public interface IRepositoryService
     {
-        Task GenerateAsync(Project project);
+        Task<IList<File>> GenerateAsync(Project project);
     }
 
     public class RepositoryService : IRepositoryService
     {
-        public async Task GenerateAsync(Project project)
+        public async Task<IList<File>> GenerateAsync(Project project)
         {
-            var sb = new StringBuilder();
+            return new List<File>();
         }
     }
 }

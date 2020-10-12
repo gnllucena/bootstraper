@@ -1,4 +1,5 @@
-﻿using Console.Models;
+﻿using console.Models;
+using Console.Models;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
@@ -13,7 +14,7 @@ namespace Console.Services
 {
     public interface IOrchestratorService
     {
-        Task OrchestrateAsync();
+        Task OrchestrateAsync(Configuration configuration);
     }
 
     public class OrchestratorService : IOrchestratorService
@@ -30,6 +31,7 @@ namespace Console.Services
         private readonly IServiceService _serviceService;
         private readonly IValidatorService _validatorService;
         private readonly IControllerService _controllerService;
+        private readonly IFileService _fileService;
 
         public OrchestratorService(
             ILogger<OrchestratorService> logger,
@@ -43,7 +45,8 @@ namespace Console.Services
             IRepositoryService repositoryService,
             IServiceService serviceService,
             IValidatorService validatorService,
-            IControllerService controllerService)
+            IControllerService controllerService,
+            IFileService fileService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _projectValidator = projectValidator ?? throw new ArgumentNullException(nameof(projectValidator));
@@ -57,17 +60,18 @@ namespace Console.Services
             _serviceService = serviceService ?? throw new ArgumentNullException(nameof(serviceService));
             _validatorService = validatorService ?? throw new ArgumentNullException(nameof(validatorService));
             _controllerService = controllerService ?? throw new ArgumentNullException(nameof(controllerService));
+            _fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
         }
 
-        public async Task OrchestrateAsync()
+        public async Task OrchestrateAsync(Configuration configuration)
         {
-            _logger.LogDebug("Beginning file reading");
+            _logger.LogDebug("Beginning of process");
 
             var project = new Project();
 
             try
             {
-                using var stream = File.OpenRead("./appproject.json");
+                using var stream = System.IO.File.OpenRead(configuration.File);
 
                 project = await JsonSerializer.DeserializeAsync<Project>(stream);
             }
@@ -83,12 +87,25 @@ namespace Console.Services
                 return;
             }
 
-            await _classService.GenerateAsync(project);
-            await _queryService.GenerateAsync(project);
-            await _repositoryService.GenerateAsync(project);
-            await _serviceService.GenerateAsync(project);
-            await _validatorService.GenerateAsync(project);
-            await _controllerService.GenerateAsync(project);
+            var files = new List<Models.File>();
+
+            try
+            {
+                files.AddRange(await _classService.GenerateAsync(project));
+                files.AddRange(await _queryService.GenerateAsync(project));
+                files.AddRange(await _repositoryService.GenerateAsync(project));
+                files.AddRange(await _serviceService.GenerateAsync(project));
+                files.AddRange(await _validatorService.GenerateAsync(project));
+                files.AddRange(await _controllerService.GenerateAsync(project));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+
+                return;
+            }
+
+            await _fileService.WriteAsync(files);
 
             _logger.LogDebug("End of process");
         }
@@ -134,7 +151,6 @@ namespace Console.Services
             foreach (var error in result.Errors)
             {
                 _logger.LogError(error.ErrorMessage);
-
             }
 
             return result.Errors.Any();
