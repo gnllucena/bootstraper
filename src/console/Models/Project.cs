@@ -10,6 +10,7 @@ namespace Console.Models
         }
 
         public string Name { get; set; }
+        public string Database { get; set; }
         public IList<Entity> Entities { get; set; }
     }
 }

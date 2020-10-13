@@ -6,14 +6,6 @@ namespace Console.Validators
 {
     public class DependsValidator : AbstractValidator<Depends>
     {
-        private readonly List<string> whens = new List<string>
-        {
-            "greaterthenzero",
-            "lessthenzero",
-            "empty",
-            "notempty",
-        };
-
         public DependsValidator()
         {
             RuleFor(x => x.On)
@@ -27,9 +19,24 @@ namespace Console.Validators
                 .WithMessage(x => $"Depends' \"on\" and \"when\" must be informed together");
 
             RuleFor(x => x.When)
-                .Must(x => whens.Contains(x.ToLower()))
+                .Must(x => CheckExistance(Constants.DependsWhens, x))
                 .When(x => !string.IsNullOrWhiteSpace(x.When))
-                .WithMessage(x => $"Depends' \"when\" has a value not allowed. Allowed values: {string.Join(", ", whens)}");
+                .WithMessage(x => $"Depends' \"when\" has a value not allowed. Allowed values: {string.Join(", ", Constants.DependsWhens)}");
+        }
+
+        private bool CheckExistance(List<string> list, string check)
+        {
+            var lowered = check.ToLower();
+
+            foreach (var item in list)
+            {
+                if (item.ToLower() == lowered)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

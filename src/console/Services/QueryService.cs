@@ -1,20 +1,239 @@
 ﻿using Console.Models;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Console.Services
 {
     public interface IQueryService
     {
-        Task<IList<File>> GenerateAsync(Project project);
+        IList<File> Generate(Project project);
     }
 
     public class QueryService : IQueryService
     {
-        public async Task<IList<File>> GenerateAsync(Project project)
+        public IList<File> Generate(Project project)
         {
-            return new List<File>();
+            var files = new List<File>();
+
+            foreach (var entity in project.Entities)
+            {
+                files.Add(GenerateQuery(project, entity));
+            }
+
+            return files;
+        }
+
+        public File GenerateQuery(Project project, Entity entity)
+        {
+            var primaryKey = entity.Properties.Where(x => x.PrimaryKey).First();
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"using {project.Name}.Domain.Models;");
+            sb.AppendLine($"");
+            sb.AppendLine($"namespace {project.Name}.Domain.Queries");
+            sb.AppendLine($"{{");
+            sb.AppendLine($"    public class {entity.Name}Query");
+            sb.AppendLine($"    {{");
+            sb.AppendLine(GenerateInsertQuery(entity, primaryKey));
+            sb.AppendLine(GenerateUpdateQuery(entity, primaryKey));
+            sb.AppendLine(GenerateDeleteQuery(entity, primaryKey));
+            sb.AppendLine(GenerateListQuery(entity));
+            sb.AppendLine(GenerateGetQuery(primaryKey));
+            sb.AppendLine(GeneratePaginateQuery());
+            sb.AppendLine(GeneratePaginateWhereQuery(primaryKey));
+            sb.AppendLine(GeneratePaginateCountQuery(entity));
+            sb.AppendLine($"    }}");
+            sb.AppendLine($"}}");
+
+            return new File()
+            {
+                Content = sb.ToString(),
+                Path = $"Domain/Queries/{entity.Name}Query.cs"
+            };
+        }
+
+        public string GenerateInsertQuery(Entity entity, Property primaryKey)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"        public static string INSERT = $@\"");
+            sb.AppendLine($"            INSERT INTO {entity.Table}");
+            sb.AppendLine($"                       (");
+
+            for (var i = 0; i <= entity.Properties.Count - 1; i++)
+            {
+                var property = entity.Properties[i];
+
+                var comma = i == entity.Properties.Count - 1 ? "" : ",";
+
+                sb.AppendLine($"                        {property.Column}{comma}");
+            }
+
+            sb.AppendLine($"                       )");
+            sb.AppendLine($"                VALUES (");
+
+            for (var i = 0; i <= entity.Properties.Count - 1; i++)
+            {
+                var property = entity.Properties[i];
+
+                var comma = i == entity.Properties.Count - 1 ? "" : ",";
+
+                sb.AppendLine($"                        @{property.Column}{comma}");
+            }
+
+            sb.AppendLine($"                       );");
+            sb.AppendLine($"");
+            sb.AppendLine($"            SELECT LAST_INSERT_ID() as {primaryKey.Column}");
+            sb.AppendLine($"        \";");
+            
+
+            return sb.ToString();
+        }
+
+        public string GenerateUpdateQuery(Entity entity, Property primaryKey)
+        {
+            var maxPropertyLenght = 0;
+
+            foreach (var property in entity.Properties)
+            {
+                if (property.Column.Length > maxPropertyLenght)
+                {
+                    maxPropertyLenght = property.Column.Length;
+                }
+            }
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"        public static string UPDATE = $@\"");
+            sb.AppendLine($"            UPDATE {entity.Table} SET");
+
+            for (var i = 0; i <= entity.Properties.Count - 1; i++)
+            {
+                var property = entity.Properties[i];
+                
+                var comma = i == entity.Properties.Count - 1 ? "" : ",";
+
+                var spaces = "";
+
+                var moreSpaces = maxPropertyLenght - property.Column.Length;
+
+                for (var z = 0; z <= moreSpaces - 1; z++)
+                {
+                    spaces += " ";
+                }
+
+                sb.AppendLine($"                   {property.Column}{spaces} = @{property.Column}{comma}");
+            }
+
+            sb.AppendLine($"             WHERE {primaryKey.Column} = @{primaryKey.Column}");
+            sb.AppendLine($"        \";");
+
+            return sb.ToString();
+        }
+
+        public string GenerateDeleteQuery(Entity entity, Property primaryKey)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"        public static string DELETE = $@\"");
+            sb.AppendLine($"            DELETE FROM {entity.Table}");
+            sb.AppendLine($"                  WHERE {primaryKey.Column} = @{primaryKey.Column}");
+            sb.AppendLine($"        \";");
+
+            return sb.ToString();
+        }
+
+        public string GenerateListQuery(Entity entity)
+        {
+            var maxPropertyLenght = 0;
+
+            foreach (var property in entity.Properties)
+            {
+                if (property.Column.Length > maxPropertyLenght)
+                {
+                    maxPropertyLenght = property.Column.Length;
+                }
+            }
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"        public static string LIST = $@\"");
+            sb.AppendLine($"            SELECT ");
+            
+            for (var i = 0; i <= entity.Properties.Count - 1; i++)
+            {
+                var property = entity.Properties[i];
+
+                var comma = i == entity.Properties.Count - 1? "" : ",";
+
+                var spaces = "";
+
+                var moreSpaces = maxPropertyLenght - property.Column.Length;
+
+                for (var z = 0; z <= moreSpaces - 1; z++)
+                {
+                    spaces += " ";
+                }
+
+                sb.AppendLine($"                   {property.Column}{spaces} as {{nameof({entity.Name}.{property.Name})}}{comma}");
+            }
+
+            sb.AppendLine($"              FROM {entity.Table}");
+            sb.AppendLine($"        \";");
+
+            return sb.ToString();
+        }
+
+        public string GenerateGetQuery(Property primaryKey)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"        public static string GET = $@\"");
+            sb.AppendLine($"            {{LIST}}");
+            sb.AppendLine($"             WHERE {primaryKey.Column} = @{primaryKey.Column}");
+            sb.AppendLine($"        \";");
+
+            return sb.ToString();
+        }
+
+        public string GeneratePaginateQuery()
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"        public static string PAGINATE = $@\"");
+            sb.AppendLine($"            {{LIST}}");
+            sb.AppendLine($"            {{PAGINATE_WHERE}}");
+            sb.AppendLine($"             LIMIT @Limit");
+            sb.AppendLine($"            OFFSET @Offset");
+            sb.AppendLine($"        \";");
+
+            return sb.ToString();
+        }
+
+        public string GeneratePaginateWhereQuery(Property primaryKey)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"        public static string PAGINATE_WHERE = $@\"");
+            sb.AppendLine($"            WHERE {primaryKey.Column} = {primaryKey.Column}");
+            sb.AppendLine($"        \";");
+
+            return sb.ToString();
+        }
+
+        public string GeneratePaginateCountQuery(Entity entity)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"        public static string PAGINATE_COUNT = $@\"");
+            sb.AppendLine($"            SELECT COUNT(1)");
+            sb.AppendLine($"              FROM {entity.Table}");
+            sb.AppendLine($"            {{PAGINATE_WHERE}}");
+            sb.AppendLine($"        \";");
+
+            return sb.ToString();
         }
     }
 }

@@ -12,6 +12,7 @@ namespace Console.Models
         public string Name { get; set; }
         public string Column { get; set; }
         public string Primitive { get; set; }
+        public bool PrimaryKey { get; set; }
         public bool Nullable { get; set; }
         public IList<Validation> Validations { get; set; }
     }

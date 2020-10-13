@@ -89,10 +89,17 @@ namespace Console.Services
 
             var files = new List<Models.File>();
 
+            // --------- Domain
+            // --------- |
+            // --------- |- Models
+            // --------- |- Queries
+            // --------- |- Repositories
+            // --------- Services
+
             try
             {
-                files.AddRange(await _classService.GenerateAsync(project));
-                files.AddRange(await _queryService.GenerateAsync(project));
+                files.AddRange(_classService.Generate(project));
+                files.AddRange(_queryService.Generate(project));
                 files.AddRange(await _repositoryService.GenerateAsync(project));
                 files.AddRange(await _serviceService.GenerateAsync(project));
                 files.AddRange(await _validatorService.GenerateAsync(project));

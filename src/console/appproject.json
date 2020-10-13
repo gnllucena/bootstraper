@@ -1,5 +1,6 @@
 {
   "Name": "API.Identity",
+  "Database": "Mysql",
   "Entities": [
     {
       "Name": "User",
@@ -9,12 +10,14 @@
           "Name": "Id",
           "Column": "id",
           "Primitive": "int",
-          "Nullable": true
+          "PrimaryKey": true,
+          "Nullable": false
         },
         {
           "Name": "Name",
           "Column": "name",
           "Primitive": "string",
+          "PrimaryKey": false,
           "Nullable": false,
           "Validations": [
             {
@@ -35,6 +38,7 @@
           "Name": "Email",
           "Column": "email",
           "Primitive": "string",
+          "PrimaryKey": false,
           "Nullable": false,
           "Validations": [
             {
@@ -59,6 +63,7 @@
           "Name": "Password",
           "Column": "password",
           "Primitive": "string",
+          "PrimaryKey": false,
           "Nullable": false,
           "Validations": [
             {
@@ -78,19 +83,22 @@
         {
           "Name": "Active",
           "Column": "active",
-          "Primitive": "boolean",
+          "Primitive": "bool",
+          "PrimaryKey": false,
           "Nullable": false
         },
         {
           "Name": "Confirmed",
-          "Column": "Confirmed",
-          "Primitive": "boolean",
+          "Column": "confirmed",
+          "Primitive": "bool",
+          "PrimaryKey": false,
           "Nullable": false
         },
         {
           "Name": "Created",
           "Column": "created",
           "Primitive": "datetime",
+          "PrimaryKey": false,
           "Nullable": false,
           "Validations": [
             {
@@ -103,6 +111,7 @@
           "Name": "CreatedBy",
           "Column": "createdby",
           "Primitive": "string",
+          "PrimaryKey": false,
           "Nullable": false,
           "Validations": [
             {
@@ -115,6 +124,7 @@
           "Name": "Updated",
           "Column": "updated",
           "Primitive": "datetime",
+          "PrimaryKey": false,
           "Nullable": true,
           "Validations": [
             {
@@ -122,7 +132,7 @@
               "Value": null,
               "Depends": {
                 "On": "Id",
-                "When": "GreaterThenZero"
+                "When": "GreaterThanZero"
               }
             }
           ]
@@ -131,6 +141,7 @@
           "Name": "UpdatedBy",
           "Column": "updatedby",
           "Primitive": "string",
+          "PrimaryKey": false,
           "Nullable": true,
           "Validations": [
             {
@@ -138,7 +149,7 @@
               "Value": null,
               "Depends": {
                 "On": "Id",
-                "When": "GreaterThenZero"
+                "When": "GreaterThanZero"
               }
             }
           ]

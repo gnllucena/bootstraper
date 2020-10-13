@@ -7,30 +7,6 @@ namespace Console.Validators
 {
     public class ValidationValidator : AbstractValidator<Validation>
     {
-        private readonly List<string> types = new List<string>
-        {
-            "minlenght",
-            "maxlenght",
-            "required",
-            "email",
-            "past",
-            "future",
-            "greaterthanzero",
-            "lessthanzero"
-        };
-
-        private readonly List<string> dependenciesOnValue = new List<string>
-        {
-            "minlenght",
-            "maxlenght"
-        };
-
-        private readonly List<string> dependenciesOnNumeralValue = new List<string>
-        {
-            "minlenght",
-            "maxlenght"
-        };
-
         public ValidationValidator()
         {
             RuleFor(x => x.Type)
@@ -38,18 +14,33 @@ namespace Console.Validators
                 .WithMessage(x => $"Validation's \"type\" must be informed for \"{x.Value}\" validation");
 
             RuleFor(x => x.Type)
-                .Must(x => types.Contains(x.ToLower()))
-                .WithMessage(x => $"Validation's \"type\" not allowed for \"{x.Value}\" validation. Allowed values: {string.Join(", ", types)}");
+                .Must(x => CheckExistance(Constants.ValidationTypes, x))
+                .WithMessage(x => $"Validation's \"type\" not allowed for \"{x.Value}\" validation. Allowed values: {string.Join(", ", Constants.ValidationTypes)}");
 
             RuleFor(x => x.Value)
                 .NotEmpty()
-                .When(x => dependenciesOnValue.Contains(x.Type.ToLower()))
+                .When(x => CheckExistance(Constants.ValidationDependenciesOnValue, x.Type))
                 .WithMessage(x => $"Validation's \"value\" must be informed for \"{x.Type}\" validation");
 
             RuleFor(x => x.Value)
                 .ValidNumber()
-                .When(x => dependenciesOnNumeralValue.Contains(x.Type.ToLower()))
+                .When(x => CheckExistance(Constants.ValidationDependenciesOnNumeralValue, x.Type))
                 .WithMessage(x => $"Validation's \"value\" must be a number for \"{x.Type}\" validation");
+        }
+
+        private bool CheckExistance(List<string> list, string check)
+        {
+            var lowered = check.ToLower();
+
+            foreach (var item in list)
+            {
+                if (item.ToLower() == lowered)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
