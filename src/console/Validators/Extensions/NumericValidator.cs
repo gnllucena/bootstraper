@@ -7,6 +7,7 @@ namespace Console.Validators.Extensions
         public NumericValidator() : base("{PropertyName} is not a number")
         {
         }
+
         protected override bool IsValid(PropertyValidatorContext context)
         {
             var texto = context.PropertyValue as string;

@@ -8,6 +8,7 @@ namespace Console.Validators.Extensions
         public PastValidator() : base("{PropertyName} is not older then now")
         {
         }
+
         protected override bool IsValid(PropertyValidatorContext context)
         {
             var data = (DateTime)context.PropertyValue;

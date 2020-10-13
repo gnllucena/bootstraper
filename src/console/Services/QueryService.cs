@@ -44,6 +44,17 @@ namespace Console.Services
             sb.AppendLine(GeneratePaginateQuery());
             sb.AppendLine(GeneratePaginateWhereQuery(primaryKey));
             sb.AppendLine(GeneratePaginateCountQuery(entity));
+            
+            foreach (var property in entity.Properties)
+            {
+                sb.AppendLine(GenerateExistsByPropertyQuery(entity, property));
+            }
+
+            foreach (var property in entity.Properties)
+            {
+                sb.AppendLine(GenerateExistsByPropertyAndDifferentPrimaryKey(entity, property, primaryKey));
+            }
+            
             sb.AppendLine($"    }}");
             sb.AppendLine($"}}");
 
@@ -232,6 +243,36 @@ namespace Console.Services
             sb.AppendLine($"              FROM {entity.Table}");
             sb.AppendLine($"            {{PAGINATE_WHERE}}");
             sb.AppendLine($"        \";");
+
+            return sb.ToString();
+        }
+
+        public string GenerateExistsByPropertyQuery(Entity entity, Property property)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"        public static string EXISTS_BY_{property.Name.ToUpper()} = $@\"");
+            sb.AppendLine($"            SELECT COUNT(1)");
+            sb.AppendLine($"              FROM {entity.Table}");
+            sb.AppendLine($"             WHERE {property.Column} = @{property.Column}");
+            sb.AppendLine($"        \";");
+
+            return sb.ToString();
+        }
+
+        public string GenerateExistsByPropertyAndDifferentPrimaryKey(Entity entity, Property property, Property primaryKey)
+        {
+            var sb = new StringBuilder();
+
+            if (property.Name != primaryKey.Name)
+            {
+                sb.AppendLine($"        public static string EXISTS_BY_{property.Name.ToUpper()}_AND_DIFERENT_{primaryKey.Name.ToUpper()} = $@\"");
+                sb.AppendLine($"            SELECT COUNT(1)");
+                sb.AppendLine($"              FROM {entity.Table}");
+                sb.AppendLine($"             WHERE {property.Column} = @{property.Column}");
+                sb.AppendLine($"               AND {primaryKey.Column} <> @{primaryKey.Column}");
+                sb.AppendLine($"        \";");
+            }
 
             return sb.ToString();
         }

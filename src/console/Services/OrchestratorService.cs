@@ -94,13 +94,14 @@ namespace Console.Services
             // --------- |- Models
             // --------- |- Queries
             // --------- |- Repositories
+            // --------- |- Validators
             // --------- Services
 
             try
             {
                 files.AddRange(_classService.Generate(project));
                 files.AddRange(_queryService.Generate(project));
-                files.AddRange(await _repositoryService.GenerateAsync(project));
+                files.AddRange(_repositoryService.Generate(project));
                 files.AddRange(await _serviceService.GenerateAsync(project));
                 files.AddRange(await _validatorService.GenerateAsync(project));
                 files.AddRange(await _controllerService.GenerateAsync(project));
