@@ -266,7 +266,7 @@ namespace Console.Services
 
             if (property.Name != primaryKey.Name)
             {
-                sb.AppendLine($"        public static string EXISTS_BY_{property.Name.ToUpper()}_AND_DIFERENT_{primaryKey.Name.ToUpper()} = $@\"");
+                sb.AppendLine($"        public static string EXISTS_BY_{property.Name.ToUpper()}_AND_DIFFERENT_{primaryKey.Name.ToUpper()} = $@\"");
                 sb.AppendLine($"            SELECT COUNT(1)");
                 sb.AppendLine($"              FROM {entity.Table}");
                 sb.AppendLine($"             WHERE {property.Column} = @{property.Column}");
