@@ -44,17 +44,8 @@ namespace Console.Services
             sb.AppendLine(GeneratePaginateQuery());
             sb.AppendLine(GeneratePaginateWhereQuery(primaryKey));
             sb.AppendLine(GeneratePaginateCountQuery(entity));
-            
-            foreach (var property in entity.Properties)
-            {
-                sb.AppendLine(GenerateExistsByPropertyQuery(entity, property));
-            }
-
-            foreach (var property in entity.Properties)
-            {
-                sb.AppendLine(GenerateExistsByPropertyAndDifferentPrimaryKey(entity, property, primaryKey));
-            }
-            
+            sb.Append(GenerateExistsByPropertyQuery(entity));
+            sb.Append(GenerateExistsByPropertyAndDifferentPrimaryKeyQuery(entity, primaryKey));
             sb.AppendLine($"    }}");
             sb.AppendLine($"}}");
 
@@ -99,7 +90,6 @@ namespace Console.Services
             sb.AppendLine($"            SELECT LAST_INSERT_ID() as {primaryKey.Column}");
             sb.AppendLine($"        \";");
             
-
             return sb.ToString();
         }
 
@@ -177,7 +167,7 @@ namespace Console.Services
             {
                 var property = entity.Properties[i];
 
-                var comma = i == entity.Properties.Count - 1? "" : ",";
+                var comma = i == entity.Properties.Count - 1 ? "" : ",";
 
                 var spaces = "";
 
@@ -247,31 +237,45 @@ namespace Console.Services
             return sb.ToString();
         }
 
-        public string GenerateExistsByPropertyQuery(Entity entity, Property property)
+        public string GenerateExistsByPropertyQuery(Entity entity)
         {
             var sb = new StringBuilder();
 
-            sb.AppendLine($"        public static string EXISTS_BY_{property.Name.ToUpper()} = $@\"");
-            sb.AppendLine($"            SELECT COUNT(1)");
-            sb.AppendLine($"              FROM {entity.Table}");
-            sb.AppendLine($"             WHERE {property.Column} = @{property.Column}");
-            sb.AppendLine($"        \";");
-
-            return sb.ToString();
-        }
-
-        public string GenerateExistsByPropertyAndDifferentPrimaryKey(Entity entity, Property property, Property primaryKey)
-        {
-            var sb = new StringBuilder();
-
-            if (property.Name != primaryKey.Name)
+            foreach (var property in entity.Properties)
             {
-                sb.AppendLine($"        public static string EXISTS_BY_{property.Name.ToUpper()}_AND_DIFFERENT_{primaryKey.Name.ToUpper()} = $@\"");
+                sb.AppendLine($"        public static string EXISTS_BY_{property.Name.ToUpper()} = $@\"");
                 sb.AppendLine($"            SELECT COUNT(1)");
                 sb.AppendLine($"              FROM {entity.Table}");
                 sb.AppendLine($"             WHERE {property.Column} = @{property.Column}");
-                sb.AppendLine($"               AND {primaryKey.Column} <> @{primaryKey.Column}");
                 sb.AppendLine($"        \";");
+                sb.AppendLine($"");
+            }
+            
+            return sb.ToString();
+        }
+
+        public string GenerateExistsByPropertyAndDifferentPrimaryKeyQuery(Entity entity, Property primaryKey)
+        {
+            var sb = new StringBuilder();
+
+            for (var i = 0; i <= entity.Properties.Count - 1; i++)
+            {
+                var property = entity.Properties[i];
+
+                if (property.Name != primaryKey.Name)
+                {
+                    sb.AppendLine($"        public static string EXISTS_BY_{property.Name.ToUpper()}_AND_DIFFERENT_{primaryKey.Name.ToUpper()} = $@\"");
+                    sb.AppendLine($"            SELECT COUNT(1)");
+                    sb.AppendLine($"              FROM {entity.Table}");
+                    sb.AppendLine($"             WHERE {property.Column} = @{property.Column}");
+                    sb.AppendLine($"               AND {primaryKey.Column} <> @{primaryKey.Column}");
+                    sb.AppendLine($"        \";");
+
+                    if (i != entity.Properties.Count - 1)
+                    {
+                        sb.AppendLine($"");
+                    }
+                }
             }
 
             return sb.ToString();

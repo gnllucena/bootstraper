@@ -1,5 +1,6 @@
 ﻿using Console.Models;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Console.Services
@@ -33,12 +34,8 @@ namespace Console.Services
             sb.AppendLine($"{{");
             sb.AppendLine($"    public class {entity.Name}");
             sb.AppendLine($"    {{");
-
-            foreach (var property in entity.Properties)
-            {
-                sb.AppendLine(GenerateProperty(property));
-            }
-
+            sb.AppendLine(GenerateProperty(entity));
+            sb.Append(GenerateToStringOverride(entity));
             sb.AppendLine($"    }}");
             sb.AppendLine($"}}");
 
@@ -49,17 +46,41 @@ namespace Console.Services
             };
         }
 
-        private string GenerateProperty(Property property)
+        private string GenerateProperty(Entity entity)
         {
-            var primitive = Constants.PropertyPrimitivies.Find(x => x.ToLower() == property.Primitive.ToLower());
-            var nullable = property.Nullable ? "?" : string.Empty;
+            var sb = new StringBuilder();
 
-            if (primitive == "string")
+            foreach (var property in entity.Properties)
             {
-                nullable = "";
+                
+                var primitive = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
+                var nullable = property.Nullable ? "?" : string.Empty;
+
+                if (primitive == "string")
+                {
+                    nullable = "";
+                }
+
+                sb.AppendLine($"        public {primitive}{nullable} {property.Name} {{ get; set; }}");
             }
 
-            return $"        public {primitive}{nullable} {property.Name} {{ get; set; }}";
+            return sb.ToString();
+        }
+
+        private string GenerateToStringOverride(Entity entity)
+        {
+            var properties = entity.Properties.Select(x => $"{x.Name}: {{{x.Name}}}");
+
+            var toString = string.Join(" - ", properties);
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"        public override string ToString()");
+            sb.AppendLine($"        {{");
+            sb.AppendLine($"            return $\"{toString}\";");
+            sb.AppendLine($"        }}");
+
+            return sb.ToString();
         }
     }
 }

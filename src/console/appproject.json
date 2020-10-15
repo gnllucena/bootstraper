@@ -11,6 +11,7 @@
           "Column": "id",
           "Primitive": "int",
           "PrimaryKey": true,
+          "Unique": true,
           "Nullable": false
         },
         {
@@ -19,6 +20,7 @@
           "Primitive": "string",
           "PrimaryKey": false,
           "Nullable": false,
+          "Unique": false,
           "Validations": [
             {
               "Type": "MinLenght",
@@ -40,6 +42,7 @@
           "Primitive": "string",
           "PrimaryKey": false,
           "Nullable": false,
+          "Unique": true,
           "Validations": [
             {
               "Type": "MinLenght",
@@ -65,6 +68,7 @@
           "Primitive": "string",
           "PrimaryKey": false,
           "Nullable": false,
+          "Unique": false,
           "Validations": [
             {
               "Type": "MinLenght",
@@ -85,6 +89,7 @@
           "Column": "active",
           "Primitive": "bool",
           "PrimaryKey": false,
+          "Unique": false,
           "Nullable": false
         },
         {
@@ -92,6 +97,7 @@
           "Column": "confirmed",
           "Primitive": "bool",
           "PrimaryKey": false,
+          "Unique": false,
           "Nullable": false
         },
         {
@@ -100,6 +106,7 @@
           "Primitive": "datetime",
           "PrimaryKey": false,
           "Nullable": false,
+          "Unique": false,
           "Validations": [
             {
               "Type": "Required",
@@ -113,6 +120,7 @@
           "Primitive": "string",
           "PrimaryKey": false,
           "Nullable": false,
+          "Unique": false,
           "Validations": [
             {
               "Type": "Required",
@@ -126,6 +134,7 @@
           "Primitive": "datetime",
           "PrimaryKey": false,
           "Nullable": true,
+          "Unique": false,
           "Validations": [
             {
               "Type": "Required",
@@ -143,6 +152,7 @@
           "Primitive": "string",
           "PrimaryKey": false,
           "Nullable": true,
+          "Unique": false,
           "Validations": [
             {
               "Type": "Required",

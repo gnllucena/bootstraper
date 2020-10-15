@@ -1,4 +1,5 @@
 ﻿using Console.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -48,40 +49,40 @@ namespace Console.Services
             sb.AppendLine($"        Task UpdateAsync(int {entity.Name.ToLower()}Id, {entity.Name} {entity.Name.ToLower()});");
             sb.AppendLine($"        Task DeleteAsync(int {entity.Name}Id);");
             sb.AppendLine($"        Task<{entity.Name}> GetAsync(int {entity.Name.ToLower()}Id);");
-            sb.AppendLine($"        Task<Pagination<{entity.Name}>> PaginateAsync(int offset, int limit);");
-            sb.AppendLine(GenerateInterfaceMethod(entity, primaryKey));
+            sb.Append(GenerateInterfaceMethod(entity, primaryKey));
             sb.AppendLine($"    }}");
             sb.AppendLine($"");
             sb.AppendLine($"    public class {entity.Name}Repository : I{entity.Name}Repository");
             sb.AppendLine($"    {{");
             sb.AppendLine($"        private readonly ILogger<{entity.Name}Repository> _logger;");
             sb.AppendLine($"        private readonly ISqlService _sqlService;");
+            sb.AppendLine($"        private readonly IAuthenticatedService _authenticatedService;");
             sb.AppendLine($"");
             sb.AppendLine($"        public FileRepository(");
             sb.AppendLine($"            ILogger<FileRepository> logger,");
-            sb.AppendLine($"            ISqlService sqlService");
+            sb.AppendLine($"            ISqlService sqlService,");
+            sb.AppendLine($"            IAuthenticatedService authenticatedService");
             sb.AppendLine($"        )");
             sb.AppendLine($"        {{");
             sb.AppendLine($"            _logger = logger ?? throw new ArgumentNullException(nameof(logger));");
             sb.AppendLine($"            _sqlService = sqlService ?? throw new ArgumentNullException(nameof(sqlService));");
+            sb.AppendLine($"            _authenticatedService = authenticatedService ?? throw new ArgumentNullException(nameof(authenticatedService));");
             sb.AppendLine($"        }}");
             sb.AppendLine($"");
-            sb.AppendLine(GenerateInsertMethod(entity));
-            sb.AppendLine($"");
-            sb.AppendLine(GenerateUpdateMethod(entity));
-            sb.AppendLine($"");
-            sb.AppendLine(GenerateDeleteMethod(entity));
-            sb.AppendLine($"");
-            sb.AppendLine(GenerateGetMethod(entity));
-            sb.AppendLine($"");
+            sb.AppendLine(GenerateInsertMethod(entity, primaryKey));
+            sb.AppendLine(GenerateUpdateMethod(entity, primaryKey));
+            sb.AppendLine(GenerateDeleteMethod(entity, primaryKey));
+            sb.AppendLine(GenerateGetMethod(entity, primaryKey));
             sb.AppendLine(GeneratePaginationMethod(entity));
+            sb.AppendLine(GenerateExistsByPropertyMethod(entity));
+            sb.Append(GenerateExistsByPropertyAndDifferentPrimaryKeyMethod(entity, primaryKey));
             sb.AppendLine($"    }}");
             sb.AppendLine($"}}");
 
             return new File()
             {
                 Content = sb.ToString(),
-                Path = $"Domain/Queries/{entity.Name}Query.cs"
+                Path = $"Domain/Repositories/{entity.Name}Repository.cs"
             };
         }
 
@@ -89,105 +90,168 @@ namespace Console.Services
         {
             var sb = new StringBuilder();
 
+            var parameters = string.Empty;
+
             foreach (var property in entity.Properties)
             {
-                sb.AppendLine($"        Task<bool> ExistsBy{property.Name}Async(int offset, int limit);");
+                var nameCamelCaseProperty = Functions.GetCamelCaseValue(property.Name);
+                var primitive = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
+                var nullable = "?";
+
+                if (primitive == "string")
+                {
+                    nullable = "";
+                }
+
+                if (primitive == "DateTime")
+                {
+                    parameters += $", DateTime? from{property.Name}, DateTime? to{property.Name}";
+                }
+                else
+                {
+                    parameters += $", {primitive}{nullable} {nameCamelCaseProperty}";
+                }
+            }
+
+            sb.AppendLine($"        Task<Pagination<{entity.Name}>> PaginateAsync(int offset, int limit{parameters});");
+
+            foreach (var property in entity.Properties)
+            {
+                var primitive = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
+                var camelCase = Functions.GetCamelCaseValue(property.Name);
+
+                sb.AppendLine($"        Task<bool> ExistsBy{property.Name}Async({primitive} {camelCase});");
             }
 
             foreach (var property in entity.Properties)
             {
-                sb.AppendLine($"        Task<bool> ExistsBy{property.Name}AndDifferentThen{primaryKey.Name}Async(int offset, int limit);");
+                if (property.Name != primaryKey.Name)
+                {
+                    var primitiveProperty = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
+                    var camelCaseProperty = Functions.GetCamelCaseValue(property.Name);
+
+                    var primitivePrimaryKey = Functions.GetConstantValue(Constants.PropertyPrimitivies, primaryKey.Primitive);
+                    var camelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
+
+                    sb.AppendLine($"        Task<bool> ExistsBy{property.Name}AndDifferentThan{primaryKey.Name}Async({primitiveProperty} {camelCaseProperty}, {primitivePrimaryKey} {camelCasePrimaryKey});");
+                }
             }
 
             return sb.ToString();
         }
 
-        public string GenerateInsertMethod(Entity entity)
+        public string GenerateInsertMethod(Entity entity, Property primaryKey)
         {
+            var entityCamelCase = Functions.GetCamelCaseValue(entity.Name);
+            var primitivePrimaryKey = Functions.GetConstantValue(Constants.PropertyPrimitivies, primaryKey.Primitive);
+
             var sb = new StringBuilder();
 
-            sb.AppendLine($"        public async Task<int> InsertAsync(File file)");
+            sb.AppendLine($"        public async Task<{primaryKey.Primitive}> InsertAsync({entity.Name} {entityCamelCase})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            _logger.LogDebug($\"Inserting file.\");");
+            sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is inserting a new {entity.Name} - {{{entityCamelCase}.ToString()}}\");");
             sb.AppendLine($"");
             sb.AppendLine($"            var parameters = new DynamicParameters();");
-            sb.AppendLine($"            parameters.Add(\"FilingId\", file.FilingId, direction: ParameterDirection.Input);");
-            sb.AppendLine($"            parameters.Add(\"FormId\", file.FormId, direction: ParameterDirection.Input);");
-            sb.AppendLine($"            parameters.Add(\"Name\", file.Name, direction: ParameterDirection.Input);");
-            sb.AppendLine($"            parameters.Add(\"Path\", file.Path, direction: ParameterDirection.Input);");
-            sb.AppendLine($"            parameters.Add(\"Created\", DateTime.Now, direction: ParameterDirection.Input);");
-            sb.AppendLine($"            parameters.Add(\"CreatedBy\", file.CreatedBy, direction: ParameterDirection.Input);");
-            sb.AppendLine($"            parameters.Add(\"Updated\", DateTime.Now, direction: ParameterDirection.Input);");
-            sb.AppendLine($"            parameters.Add(\"UpdatedBy\", file.UpdatedBy, direction: ParameterDirection.Input);");
+            sb.AppendLine($"            parameters.Add(\"{primaryKey.Column}\", {entityCamelCase}.{primaryKey.Name}, direction: ParameterDirection.Output);");
+
+            foreach (var property in entity.Properties)
+            {
+                if (property.Name != primaryKey.Name)
+                {
+                    sb.AppendLine($"            parameters.Add(\"{property.Column}\", {entityCamelCase}.{property.Name}, direction: ParameterDirection.Input);");
+                }
+            }
+            
             sb.AppendLine($"");
-            sb.AppendLine($"            file.Id = await _sqlService.ExecuteScalarAsync<int>(FileQuery.INSERT, CommandType.Text, parameters);");
+            sb.AppendLine($"            var result = await _sqlService.ExecuteScalarAsync<{primitivePrimaryKey}>({entity.Name}Query.INSERT, CommandType.Text, parameters);");
             sb.AppendLine($"");
-            sb.AppendLine($"            _logger.LogDebug($\"File inserted: {{file.Id}}.\");");
+            sb.AppendLine($"            _logger.LogDebug($\"{entity.Name} {{result}} inserted\");");
             sb.AppendLine($"");
-            sb.AppendLine($"            return file.Id;");
+            sb.AppendLine($"            return result;");
             sb.AppendLine($"        }}");
 
             return sb.ToString();
         }
 
-        public string GenerateUpdateMethod(Entity entity)
+        public string GenerateUpdateMethod(Entity entity, Property primaryKey)
         {
+            var entityCamelCase = Functions.GetCamelCaseValue(entity.Name);
+            var nameCamelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
+            var primitivePrimaryKey = Functions.GetConstantValue(Constants.PropertyPrimitivies, primaryKey.Primitive);
+
             var sb = new StringBuilder();
 
-            sb.AppendLine($"        public async Task UpdateAsync(int fileId, File file)");
+            sb.AppendLine($"        public async Task UpdateAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey}, {entity.Name} {entityCamelCase})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            _logger.LogDebug($\"Updating file by id: {{fileId}}\");");
+            sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is updating {entity.Name} {{{nameCamelCasePrimaryKey}}} - {{{entityCamelCase}.ToString()}}\");");
             sb.AppendLine($"");
-            sb.AppendLine($"            var parameters = new DynamicParameters();");
-            sb.AppendLine($"            parameters.Add(\"Id\", fileId);");
-            sb.AppendLine($"            parameters.Add(\"FilingId\", file.FilingId, direction: ParameterDirection.Input);");
-            sb.AppendLine($"            parameters.Add(\"FormId\", file.FormId, direction: ParameterDirection.Input);");
-            sb.AppendLine($"            parameters.Add(\"Name\", file.Name, direction: ParameterDirection.Input);");
-            sb.AppendLine($"            parameters.Add(\"Path\", file.Path, direction: ParameterDirection.Input);");
-            sb.AppendLine($"            parameters.Add(\"Updated\", DateTime.Now, direction: ParameterDirection.Input);");
-            sb.AppendLine($"            parameters.Add(\"UpdatedBy\", file.UpdatedBy, direction: ParameterDirection.Input);");
-            sb.AppendLine($"");
-            sb.AppendLine($"            await _sqlService.ExecuteAsync(FileQuery.UPDATE, CommandType.Text, parameters);");
-            sb.AppendLine($"");
-            sb.AppendLine($"            _logger.LogDebug($\"File updated\");");
-            sb.AppendLine($"        }}");
+            sb.AppendLine($"            await _sqlService.ExecuteAsync({entity.Name}Query.UPDATE, CommandType.Text, new");
+            sb.AppendLine($"            {{");
 
-            return sb.ToString();
-        }
+            for (var i = 0; i <= entity.Properties.Count - 1; i++)
+            {
+                var property = entity.Properties[i];
+                var comma = i == entity.Properties.Count - 1 ? "" : ",";
 
-        public string GenerateDeleteMethod(Entity entity)
-        {
-            var sb = new StringBuilder();
+                if (property.Name == primaryKey.Name)
+                {
+                    sb.AppendLine($"                {primaryKey.Column} = {nameCamelCasePrimaryKey}{comma}");
+                }
+                else
+                {
+                    sb.AppendLine($"                {property.Column} = {entityCamelCase}.{property.Name}{comma}");
+                }
+            }
 
-            sb.AppendLine($"        public async Task DeleteAsync(int fileId)");
-            sb.AppendLine($"        {{");
-            sb.AppendLine($"            _logger.LogDebug($\"Deleting file\");");
-            sb.AppendLine($"");
-            sb.AppendLine($"            await _sqlService.ExecuteAsync(FileQuery.DELETE, CommandType.Text, new {{ ");
-            sb.AppendLine($"                Id = fileId ");
             sb.AppendLine($"            }});");
             sb.AppendLine($"");
-            sb.AppendLine($"            _logger.LogDebug($\"File deleted.\");");
+            sb.AppendLine($"            _logger.LogDebug($\"{entity.Name} {{{nameCamelCasePrimaryKey}}} updated\");");
             sb.AppendLine($"        }}");
 
             return sb.ToString();
         }
 
-        public string GenerateGetMethod(Entity entity)
+        public string GenerateDeleteMethod(Entity entity, Property primaryKey)
         {
+            var nameCamelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
+            var primitivePrimaryKey = Functions.GetConstantValue(Constants.PropertyPrimitivies, primaryKey.Primitive);
+
             var sb = new StringBuilder();
 
-            sb.AppendLine($"        public async Task<File> GetAsync(int fileId)");
+            sb.AppendLine($"        public async Task DeleteAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            _logger.LogDebug($\"Get file by id: {{fileId}}.\");");
+            sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is deleting {entity.Name} {{{nameCamelCasePrimaryKey}}}\");");
             sb.AppendLine($"");
-            sb.AppendLine($"            var file = await _sqlService.QueryFirstOrDefaultAsync<File>(FileQuery.GET, CommandType.Text, new {{");
-            sb.AppendLine($"                Id = fileId");
+            sb.AppendLine($"            await _sqlService.ExecuteAsync({entity.Name}Query.DELETE, CommandType.Text, new");
+            sb.AppendLine($"            {{");
+            sb.AppendLine($"                {primaryKey.Column} = {nameCamelCasePrimaryKey}");
             sb.AppendLine($"            }});");
             sb.AppendLine($"");
-            sb.AppendLine($"            _logger.LogDebug($\"Got file\");");
+            sb.AppendLine($"            _logger.LogDebug($\"{entity.Name} {{{nameCamelCasePrimaryKey}}} deleted\");");
+            sb.AppendLine($"        }}");
+
+            return sb.ToString();
+        }
+
+        public string GenerateGetMethod(Entity entity, Property primaryKey)
+        {
+            var nameCamelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
+            var primitivePrimaryKey = Functions.GetConstantValue(Constants.PropertyPrimitivies, primaryKey.Primitive);
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"        public async Task<File> GetAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey})");
+            sb.AppendLine($"        {{");
+            sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is getting {entity.Name} {{{nameCamelCasePrimaryKey}}}\");");
             sb.AppendLine($"");
-            sb.AppendLine($"            return file;");
+            sb.AppendLine($"            var result = await _sqlService.QueryFirstOrDefaultAsync<{entity.Name}>({entity.Name}Query.GET, CommandType.Text, new");
+            sb.AppendLine($"            {{");
+            sb.AppendLine($"                {primaryKey.Column} = {nameCamelCasePrimaryKey}");
+            sb.AppendLine($"            }});");
+            sb.AppendLine($"");
+            sb.AppendLine($"            _logger.LogDebug($\"Got {entity.Name} {{{nameCamelCasePrimaryKey}}} - {{result.ToString()}}\");");
+            sb.AppendLine($"");
+            sb.AppendLine($"            return result;");
             sb.AppendLine($"        }}");
 
             return sb.ToString();
@@ -195,23 +259,92 @@ namespace Console.Services
 
         public string GeneratePaginationMethod(Entity entity)
         {
+            var parameters = string.Empty;
+            var log = string.Empty;
+
+            foreach (var property in entity.Properties)
+            {
+                var nameCamelCaseProperty = Functions.GetCamelCaseValue(property.Name);
+                var primitive = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
+                var nullable = "?";
+
+                if (primitive == "string")
+                {
+                    nullable = "";
+                }
+
+                if (primitive == "DateTime")
+                {
+                    parameters += $", DateTime? from{property.Name}, DateTime? to{property.Name}";
+                    log += $" - from{property.Name}: {{from{property.Name}}} - to{property.Name}: {{to{property.Name}}}";
+                }
+                else
+                {
+                    parameters += $", {primitive}{nullable} {nameCamelCaseProperty}";
+                    log += $" - {nameCamelCaseProperty}: {{{nameCamelCaseProperty}}}";
+                }
+            }
+
             var sb = new StringBuilder();
 
-            sb.AppendLine($"        public async Task<Pagination<File>> PaginateAsync(int offset, int limit)");
+            sb.AppendLine($"        public async Task<Pagination<{entity.Name}>> PaginateAsync(int offset, int limit{parameters})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            _logger.LogDebug($\"List all files paginated - offset: {{offset}} - limit: {{limit}}.\");");
+            sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is paginating {entity.Name} - offset: {{offset}} - limit: {{limit}}{log}\");");
             sb.AppendLine($"");
-            sb.AppendLine($"            var files = await _sqlService.QueryAsync<File>(FileQuery.PAGINATE, CommandType.Text, new");
+
+            foreach (var property in entity.Properties)
+            {
+                var primitive = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
+
+                if (primitive == "DateTime")
+                {
+                    sb.AppendLine($"            DateTime? parsedFrom{property.Name} = null;");
+                    sb.AppendLine($"");
+                    sb.AppendLine($"            if (from{property.Name} != null)");
+                    sb.AppendLine($"            {{");
+                    sb.AppendLine($"                parsedFrom{property.Name} = from{property.Name}.Date;");
+                    sb.AppendLine($"            }}");
+                    sb.AppendLine($"");
+                    sb.AppendLine($"            DateTime? parsedTo{property.Name} = null;");
+                    sb.AppendLine($"");
+                    sb.AppendLine($"            if (to{property.Name} != null)");
+                    sb.AppendLine($"            {{");
+                    sb.AppendLine($"                parsedTo{property.Name} = to{property.Name}.Date.AddHours(23).AddMinutes(59).AddSeconds(59);");
+                    sb.AppendLine($"            }}");
+                    sb.AppendLine($"");
+                }
+            }
+
+            sb.AppendLine($"            var result = await _sqlService.QueryAsync<{entity.Name}>({entity.Name}Query.PAGINATE, CommandType.Text, new");
             sb.AppendLine($"            {{");
-            sb.AppendLine($"                offset,");
-            sb.AppendLine($"                limit");
+            sb.AppendLine($"                offset = offset,");
+            sb.AppendLine($"                limit = limit,");
+
+            for (var i = 0; i <= entity.Properties.Count - 1; i++)
+            {
+                var property = entity.Properties[i];
+                var comma = i == entity.Properties.Count - 1 ? "" : ",";
+                var nameCamelCaseProperty = Functions.GetCamelCaseValue(property.Name);
+                var primitive = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
+                
+                if (primitive == "DateTime")
+                {
+                    sb.AppendLine($"                from{property.Name} = parsedFrom{property.Name},");
+                    sb.AppendLine($"                to{property.Name} = parsedTo{property.Name}{comma}");
+                }
+                else
+                {
+                    sb.AppendLine($"                {property.Column} = {nameCamelCaseProperty}{comma}");
+                }
+            }
+
             sb.AppendLine($"            }});");
             sb.AppendLine($"");
-            sb.AppendLine($"            var total = await _sqlService.ExecuteScalarAsync<int>(FileQuery.COUNT, CommandType.Text);");
+            sb.AppendLine($"            var total = await _sqlService.ExecuteScalarAsync<int>({entity.Name}Query.PAGINATE_COUNT, CommandType.Text);");
             sb.AppendLine($"");
-            sb.AppendLine($"            var pagination = new Pagination<File>(files, offset, limit, total);");
+            sb.AppendLine($"            var pagination = new Pagination<{entity.Name}>(result, offset, limit, total);");
             sb.AppendLine($"");
-            sb.AppendLine($"            _logger.LogDebug($\"Total files: {{pagination.Itens.Count()}}\");");
+            sb.AppendLine($"            _logger.LogDebug($\"Got pagination, the informed filter has {{pagination.Itens.Count()}} results in database\");");
             sb.AppendLine($"");
             sb.AppendLine($"            return pagination;");
             sb.AppendLine($"        }}");
@@ -223,12 +356,68 @@ namespace Console.Services
         {
             var sb = new StringBuilder();
 
+            for (var i = 0; i <= entity.Properties.Count - 1; i++)
+            {
+                var property = entity.Properties[i];
+                var nameCamelCaseProperty = Functions.GetCamelCaseValue(property.Name);
+                var primitive = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
+
+                sb.AppendLine($"        public async Task<bool> ExistsBy{property.Name}Async({primitive} {nameCamelCaseProperty})");
+                sb.AppendLine($"        {{");
+                sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is searching for a match with {{{nameCamelCaseProperty}}} in column {property.Name} on {entity.Name} table\");");
+                sb.AppendLine($"");
+                sb.AppendLine($"            var result = await _sqlService.ExecuteScalarAsync<bool>(UserQuery.EXISTS_BY_{property.Name.ToUpper()}, CommandType.Text, new");
+                sb.AppendLine($"            {{");
+                sb.AppendLine($"                {property.Column} = {nameCamelCaseProperty}");
+                sb.AppendLine($"            }});");
+                sb.AppendLine($"");
+                sb.AppendLine($"            _logger.LogDebug($\"{{result ? $\"Found a match\" : \"No match found\"}}\");");
+                sb.AppendLine($"");
+                sb.AppendLine($"            return result;");
+                sb.AppendLine($"        }}");
+                sb.AppendLine($"");
+            }
+
             return sb.ToString();
         }
 
-        public string GenerateExistsByPropertyAndPrimaryKeyMethod(Entity entity)
+        public string GenerateExistsByPropertyAndDifferentPrimaryKeyMethod(Entity entity, Property primaryKey)
         {
             var sb = new StringBuilder();
+
+            for (var i = 0; i <= entity.Properties.Count - 1; i++)
+            {
+                var property = entity.Properties[i];
+
+                if (property.Name != primaryKey.Name)
+                {
+                    var primitiveProperty = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
+                    var camelCaseProperty = Functions.GetCamelCaseValue(property.Name);
+
+                    var primitivePrimaryKey = Functions.GetConstantValue(Constants.PropertyPrimitivies, primaryKey.Primitive);
+                    var camelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
+
+                    sb.AppendLine($"        public async Task<bool> ExistsBy{property.Name}AndDifferent{primaryKey.Name}Async({primitiveProperty} {camelCaseProperty}, {primitivePrimaryKey} {camelCasePrimaryKey})");
+                    sb.AppendLine($"        {{");
+                    sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is searching for a match with {{{camelCaseProperty}}} in column {property.Name} on {entity.Name} table with a different {primaryKey.Name} than {{{camelCasePrimaryKey}}}\");");
+                    sb.AppendLine($"");
+                    sb.AppendLine($"            var result = await _sqlService.ExecuteScalarAsync<bool>(UserQuery.EXISTS_BY_{property.Name.ToUpper()}, CommandType.Text, new");
+                    sb.AppendLine($"            {{");
+                    sb.AppendLine($"                {property.Column} = {camelCaseProperty},");
+                    sb.AppendLine($"                {primaryKey.Column} = {camelCasePrimaryKey}");
+                    sb.AppendLine($"            }});");
+                    sb.AppendLine($"");
+                    sb.AppendLine($"            _logger.LogDebug($\"{{result ? $\"Found a match\" : \"No match found\"}}\");");
+                    sb.AppendLine($"");
+                    sb.AppendLine($"            return result;");
+                    sb.AppendLine($"        }}");
+
+                    if (i != entity.Properties.Count - 1)
+                    {
+                        sb.AppendLine($"");
+                    }
+                }
+            }
 
             return sb.ToString();
         }
