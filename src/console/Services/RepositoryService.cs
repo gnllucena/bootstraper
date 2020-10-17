@@ -40,7 +40,7 @@ namespace Console.Services
             sb.AppendLine($"using System.Linq;");
             sb.AppendLine($"using System.Threading.Tasks;");
             sb.AppendLine($"");
-            sb.AppendLine($"namespace {project.Name}.Repositories");
+            sb.AppendLine($"namespace {project.Name}.Domain.Repositories");
             sb.AppendLine($"{{");
             sb.AppendLine($"    public interface I{entity.Name}Repository");
             sb.AppendLine($"    {{");
@@ -57,8 +57,8 @@ namespace Console.Services
             sb.AppendLine($"        private readonly ISqlService _sqlService;");
             sb.AppendLine($"        private readonly IAuthenticatedService _authenticatedService;");
             sb.AppendLine($"");
-            sb.AppendLine($"        public FileRepository(");
-            sb.AppendLine($"            ILogger<FileRepository> logger,");
+            sb.AppendLine($"        public {entity.Name}Repository(");
+            sb.AppendLine($"            ILogger<{entity.Name}Repository> logger,");
             sb.AppendLine($"            ISqlService sqlService,");
             sb.AppendLine($"            IAuthenticatedService authenticatedService");
             sb.AppendLine($"        )");
@@ -239,7 +239,7 @@ namespace Console.Services
 
             var sb = new StringBuilder();
 
-            sb.AppendLine($"        public async Task<File> GetAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey})");
+            sb.AppendLine($"        public async Task<{entity.Name}> GetAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey})");
             sb.AppendLine($"        {{");
             sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is getting {entity.Name} {{{nameCamelCasePrimaryKey}}}\");");
             sb.AppendLine($"");
@@ -393,7 +393,7 @@ namespace Console.Services
                     var primitivePrimaryKey = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, primaryKey.Primitive);
                     var camelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
 
-                    sb.AppendLine($"        public async Task<bool> ExistsBy{property.Name}AndDifferent{primaryKey.Name}Async({primitiveProperty} {camelCaseProperty}, {primitivePrimaryKey} {camelCasePrimaryKey})");
+                    sb.AppendLine($"        public async Task<bool> ExistsBy{property.Name}AndDifferentThan{primaryKey.Name}Async({primitiveProperty} {camelCaseProperty}, {primitivePrimaryKey} {camelCasePrimaryKey})");
                     sb.AppendLine($"        {{");
                     sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is searching for a match with {{{camelCaseProperty}}} in column {property.Name} on {entity.Name} table with a different {primaryKey.Name} than {{{camelCasePrimaryKey}}}\");");
                     sb.AppendLine($"");

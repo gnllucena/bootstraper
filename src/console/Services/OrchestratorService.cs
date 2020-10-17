@@ -229,23 +229,5 @@ namespace Console.Services
 
             return validations;
         }
-
-        private string UsedValidationDependencies(IList<Validation> validations, string type)
-        {
-            var dependsWhen = (type.ToLower()) switch
-            {
-                Constants.PRIMITIVE_INT => Constants.PROPERTY_INT_DEPENDS_WHEN,
-                Constants.PRIMITIVE_DECIMAL => Constants.PROPERTY_DECIMAL_DEPENDS_WHEN,
-                Constants.PRIMITIVE_DATETIME => Constants.PROPERTY_DATETIME_DEPENDS_WHEN,
-                Constants.PRIMITIVE_STRING => Constants.PROPERTY_STRING_DEPENDS_WHEN,
-                Constants.PRIMITIVE_BOOL => Constants.PROPERTY_BOOL_DEPENDS_WHEN,
-                _ => throw new InvalidOperationException($"Primitive \"{type}\" not implemented"),
-            };
-
-            var types = validations.Where(x => !string.IsNullOrWhiteSpace(x.Depends.When) &&
-                                               !dependsWhen.Contains(x.Depends.When)).Select(x => x.Depends.When);
-
-            return string.Join(", ", types);
-        }
     }
 }

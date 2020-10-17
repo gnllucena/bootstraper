@@ -29,7 +29,6 @@ namespace Console
         public const string DEPENDS_EMPTY = "empty";
         public const string DEPENDS_NOTEMPTY = "notempty";
         public const string DEPENDS_EQUALTOZERO = "equaltozero";
-        public const string DEPENDS_DEFAULT = "default";
 
         public static readonly List<string> PROJECT_DATABASE = new List<string>
         {
@@ -44,8 +43,7 @@ namespace Console
             "LessThanOrEqualTo",
             "EqualToZero",
             "Empty",
-            "NotEmpty",
-            "Default"
+            "NotEmpty"
         };
 
         public static readonly List<string> PROPERTY_PRIMITIVES = new List<string>
@@ -109,8 +107,7 @@ namespace Console
             "LessThanOrEqualTo",
             "EqualToZero",
             "Empty",
-            "NotEmpty",
-            "Default"
+            "NotEmpty"
         };
 
         public static readonly List<string> PROPERTY_DECIMAL_DEPENDS_WHEN = new List<string>
@@ -121,29 +118,25 @@ namespace Console
             "LessThanOrEqualTo",
             "EqualToZero",
             "Empty",
-            "NotEmpty",
-            "Default"
+            "NotEmpty"
         };
 
         public static readonly List<string> PROPERTY_DATETIME_DEPENDS_WHEN = new List<string>
         {
             "Empty",
-            "NotEmpty",
-            "Default"
+            "NotEmpty"
         };
 
         public static readonly List<string> PROPERTY_STRING_DEPENDS_WHEN = new List<string>
         {
             "Empty",
-            "NotEmpty",
-            "Default"
+            "NotEmpty"
         };
 
         public static readonly List<string> PROPERTY_BOOL_DEPENDS_WHEN = new List<string>
         {
             "Empty",
-            "NotEmpty",
-            "Default"
+            "NotEmpty"
         };
 
         public static readonly List<string> VALIDATION_TYPES = new List<string>

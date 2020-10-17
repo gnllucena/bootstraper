@@ -32,9 +32,10 @@ namespace Console.Services
             
             var sb = new StringBuilder();
 
-            sb.AppendLine($"using {project.Name}.Domain.Models;");
-            sb.AppendLine($"using {project.Name}.Domain.Repositories;");
+            sb.AppendLine($"using API.Identity.Domain.Models;");
             sb.AppendLine($"using FluentValidation;");
+            sb.AppendLine($"using FluentValidation.Results;");
+            sb.AppendLine($"using System;");
             sb.AppendLine($"using System.Collections.Generic;");
             sb.AppendLine($"");
             sb.AppendLine($"namespace {project.Name}.Domain.Validators");
@@ -121,7 +122,6 @@ namespace Console.Services
                     Constants.DEPENDS_LESSTHANZERO => $"x => x.{validation.Depends.On} < 0",
                     Constants.DEPENDS_LESSTHANOREQUALTOZERO => $"x => x.{validation.Depends.On} <= 0",
                     Constants.DEPENDS_EQUALTOZERO => $"x => x.{validation.Depends.On} == 0",
-                    Constants.DEPENDS_DEFAULT => $"x => default(x.{validation.Depends.On})",
                     _ => throw new NotImplementedException($"Depends type \"{validation.Depends.When}\" not implemented"),
                 };
 
