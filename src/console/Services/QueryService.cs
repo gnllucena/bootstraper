@@ -26,10 +26,11 @@ namespace Console.Services
 
         public File GenerateQuery(Project project, Entity entity)
         {
-            var primaryKey = entity.Properties.Where(x => x.PrimaryKey).First();
+            var primaryKey = entity.Properties.Where(x => x.IsPrimaryKey).First();
 
             var sb = new StringBuilder();
 
+            // TODO: deixar readonly as variavies
             sb.AppendLine($"using {project.Name}.Domain.Models;");
             sb.AppendLine($"");
             sb.AppendLine($"namespace {project.Name}.Domain.Queries");

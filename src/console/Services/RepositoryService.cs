@@ -1,5 +1,4 @@
 ﻿using Console.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,7 +26,7 @@ namespace Console.Services
 
         public File GenerateRepository(Project project, Entity entity)
         {
-            var primaryKey = entity.Properties.Where(x => x.PrimaryKey).First();
+            var primaryKey = entity.Properties.Where(x => x.IsPrimaryKey).First();
 
             var sb = new StringBuilder();
 
@@ -95,15 +94,15 @@ namespace Console.Services
             foreach (var property in entity.Properties)
             {
                 var nameCamelCaseProperty = Functions.GetCamelCaseValue(property.Name);
-                var primitive = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
+                var primitive = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, property.Primitive);
                 var nullable = "?";
 
-                if (primitive == "string")
+                if (property.Primitive.ToLower() == Constants.PRIMITIVE_STRING)
                 {
                     nullable = "";
                 }
 
-                if (primitive == "DateTime")
+                if (property.Primitive.ToLower() == Constants.PRIMITIVE_DATETIME)
                 {
                     parameters += $", DateTime? from{property.Name}, DateTime? to{property.Name}";
                 }
@@ -117,7 +116,7 @@ namespace Console.Services
 
             foreach (var property in entity.Properties)
             {
-                var primitive = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
+                var primitive = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, property.Primitive);
                 var camelCase = Functions.GetCamelCaseValue(property.Name);
 
                 sb.AppendLine($"        Task<bool> ExistsBy{property.Name}Async({primitive} {camelCase});");
@@ -127,10 +126,10 @@ namespace Console.Services
             {
                 if (property.Name != primaryKey.Name)
                 {
-                    var primitiveProperty = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
+                    var primitiveProperty = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, property.Primitive);
                     var camelCaseProperty = Functions.GetCamelCaseValue(property.Name);
 
-                    var primitivePrimaryKey = Functions.GetConstantValue(Constants.PropertyPrimitivies, primaryKey.Primitive);
+                    var primitivePrimaryKey = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, primaryKey.Primitive);
                     var camelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
 
                     sb.AppendLine($"        Task<bool> ExistsBy{property.Name}AndDifferentThan{primaryKey.Name}Async({primitiveProperty} {camelCaseProperty}, {primitivePrimaryKey} {camelCasePrimaryKey});");
@@ -143,7 +142,7 @@ namespace Console.Services
         public string GenerateInsertMethod(Entity entity, Property primaryKey)
         {
             var entityCamelCase = Functions.GetCamelCaseValue(entity.Name);
-            var primitivePrimaryKey = Functions.GetConstantValue(Constants.PropertyPrimitivies, primaryKey.Primitive);
+            var primitivePrimaryKey = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, primaryKey.Primitive);
 
             var sb = new StringBuilder();
 
@@ -177,7 +176,7 @@ namespace Console.Services
         {
             var entityCamelCase = Functions.GetCamelCaseValue(entity.Name);
             var nameCamelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
-            var primitivePrimaryKey = Functions.GetConstantValue(Constants.PropertyPrimitivies, primaryKey.Primitive);
+            var primitivePrimaryKey = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, primaryKey.Primitive);
 
             var sb = new StringBuilder();
 
@@ -214,7 +213,7 @@ namespace Console.Services
         public string GenerateDeleteMethod(Entity entity, Property primaryKey)
         {
             var nameCamelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
-            var primitivePrimaryKey = Functions.GetConstantValue(Constants.PropertyPrimitivies, primaryKey.Primitive);
+            var primitivePrimaryKey = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, primaryKey.Primitive);
 
             var sb = new StringBuilder();
 
@@ -236,7 +235,7 @@ namespace Console.Services
         public string GenerateGetMethod(Entity entity, Property primaryKey)
         {
             var nameCamelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
-            var primitivePrimaryKey = Functions.GetConstantValue(Constants.PropertyPrimitivies, primaryKey.Primitive);
+            var primitivePrimaryKey = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, primaryKey.Primitive);
 
             var sb = new StringBuilder();
 
@@ -265,15 +264,15 @@ namespace Console.Services
             foreach (var property in entity.Properties)
             {
                 var nameCamelCaseProperty = Functions.GetCamelCaseValue(property.Name);
-                var primitive = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
+                var primitive = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, property.Primitive);
                 var nullable = "?";
 
-                if (primitive == "string")
+                if (property.Primitive.ToLower() == Constants.PRIMITIVE_STRING)
                 {
                     nullable = "";
                 }
 
-                if (primitive == "DateTime")
+                if (property.Primitive.ToLower() == Constants.PRIMITIVE_DATETIME)
                 {
                     parameters += $", DateTime? from{property.Name}, DateTime? to{property.Name}";
                     log += $" - from{property.Name}: {{from{property.Name}}} - to{property.Name}: {{to{property.Name}}}";
@@ -294,22 +293,20 @@ namespace Console.Services
 
             foreach (var property in entity.Properties)
             {
-                var primitive = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
-
-                if (primitive == "DateTime")
+                if (property.Primitive.ToLower() == Constants.PRIMITIVE_DATETIME)
                 {
                     sb.AppendLine($"            DateTime? parsedFrom{property.Name} = null;");
                     sb.AppendLine($"");
                     sb.AppendLine($"            if (from{property.Name} != null)");
                     sb.AppendLine($"            {{");
-                    sb.AppendLine($"                parsedFrom{property.Name} = from{property.Name}.Date;");
+                    sb.AppendLine($"                parsedFrom{property.Name} = from{property.Name}.Value.Date;");
                     sb.AppendLine($"            }}");
                     sb.AppendLine($"");
                     sb.AppendLine($"            DateTime? parsedTo{property.Name} = null;");
                     sb.AppendLine($"");
                     sb.AppendLine($"            if (to{property.Name} != null)");
                     sb.AppendLine($"            {{");
-                    sb.AppendLine($"                parsedTo{property.Name} = to{property.Name}.Date.AddHours(23).AddMinutes(59).AddSeconds(59);");
+                    sb.AppendLine($"                parsedTo{property.Name} = to{property.Name}.Value.Date.AddHours(23).AddMinutes(59).AddSeconds(59);");
                     sb.AppendLine($"            }}");
                     sb.AppendLine($"");
                 }
@@ -325,9 +322,8 @@ namespace Console.Services
                 var property = entity.Properties[i];
                 var comma = i == entity.Properties.Count - 1 ? "" : ",";
                 var nameCamelCaseProperty = Functions.GetCamelCaseValue(property.Name);
-                var primitive = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
-                
-                if (primitive == "DateTime")
+
+                if (property.Primitive.ToLower() == Constants.PRIMITIVE_DATETIME)
                 {
                     sb.AppendLine($"                from{property.Name} = parsedFrom{property.Name},");
                     sb.AppendLine($"                to{property.Name} = parsedTo{property.Name}{comma}");
@@ -360,7 +356,7 @@ namespace Console.Services
             {
                 var property = entity.Properties[i];
                 var nameCamelCaseProperty = Functions.GetCamelCaseValue(property.Name);
-                var primitive = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
+                var primitive = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, property.Primitive);
 
                 sb.AppendLine($"        public async Task<bool> ExistsBy{property.Name}Async({primitive} {nameCamelCaseProperty})");
                 sb.AppendLine($"        {{");
@@ -371,7 +367,7 @@ namespace Console.Services
                 sb.AppendLine($"                {property.Column} = {nameCamelCaseProperty}");
                 sb.AppendLine($"            }});");
                 sb.AppendLine($"");
-                sb.AppendLine($"            _logger.LogDebug($\"{{result ? $\"Found a match\" : \"No match found\"}}\");");
+                sb.AppendLine($"            _logger.LogDebug(result ? \"Found a match\" : \"No match found\");");
                 sb.AppendLine($"");
                 sb.AppendLine($"            return result;");
                 sb.AppendLine($"        }}");
@@ -391,10 +387,10 @@ namespace Console.Services
 
                 if (property.Name != primaryKey.Name)
                 {
-                    var primitiveProperty = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
+                    var primitiveProperty = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, property.Primitive);
                     var camelCaseProperty = Functions.GetCamelCaseValue(property.Name);
 
-                    var primitivePrimaryKey = Functions.GetConstantValue(Constants.PropertyPrimitivies, primaryKey.Primitive);
+                    var primitivePrimaryKey = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, primaryKey.Primitive);
                     var camelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
 
                     sb.AppendLine($"        public async Task<bool> ExistsBy{property.Name}AndDifferent{primaryKey.Name}Async({primitiveProperty} {camelCaseProperty}, {primitivePrimaryKey} {camelCasePrimaryKey})");
@@ -407,7 +403,7 @@ namespace Console.Services
                     sb.AppendLine($"                {primaryKey.Column} = {camelCasePrimaryKey}");
                     sb.AppendLine($"            }});");
                     sb.AppendLine($"");
-                    sb.AppendLine($"            _logger.LogDebug($\"{{result ? $\"Found a match\" : \"No match found\"}}\");");
+                    sb.AppendLine($"            _logger.LogDebug(result ? \"Found a match\" : \"No match found\");");
                     sb.AppendLine($"");
                     sb.AppendLine($"            return result;");
                     sb.AppendLine($"        }}");

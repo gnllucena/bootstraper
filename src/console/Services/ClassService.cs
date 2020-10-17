@@ -52,11 +52,10 @@ namespace Console.Services
 
             foreach (var property in entity.Properties)
             {
-                
-                var primitive = Functions.GetConstantValue(Constants.PropertyPrimitivies, property.Primitive);
-                var nullable = property.Nullable ? "?" : string.Empty;
+                var primitive = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, property.Primitive);
+                var nullable = property.IsNullable ? "?" : string.Empty;
 
-                if (primitive == "string")
+                if (property.Primitive.ToLower() == Constants.PRIMITIVE_STRING)
                 {
                     nullable = "";
                 }

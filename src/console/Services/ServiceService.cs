@@ -1,18 +1,16 @@
 ﻿using Console.Models;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Console.Services
 {
     public interface IServiceService
     {
-        Task<IList<File>> GenerateAsync(Project project);
+        IList<File> Generate(Project project);
     }
 
     public class ServiceService : IServiceService
     {
-        public async Task<IList<File>> GenerateAsync(Project project)
+        public IList<File> Generate(Project project)
         {
             return new List<File>();
         }

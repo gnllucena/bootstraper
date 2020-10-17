@@ -5,7 +5,6 @@ using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -102,8 +101,8 @@ namespace Console.Services
                 files.AddRange(_classService.Generate(project));
                 files.AddRange(_queryService.Generate(project));
                 files.AddRange(_repositoryService.Generate(project));
-                files.AddRange(await _serviceService.GenerateAsync(project));
-                files.AddRange(await _validatorService.GenerateAsync(project));
+                files.AddRange(_validatorService.Generate(project));
+                files.AddRange(_serviceService.Generate(project));
                 files.AddRange(await _controllerService.GenerateAsync(project));
             }
             catch (Exception ex)
@@ -122,31 +121,37 @@ namespace Console.Services
         {
             var validations = new List<bool>();
 
-            _logger.LogDebug($"Project \"{project.Name}\" validation");
+            _logger.LogDebug($"Project \"{project.Name}\":");
 
             validations.Add(Log(_projectValidator.Validate(project)));
 
             foreach (var entity in project.Entities)
             {
-                _logger.LogDebug($"Entity \"{entity.Name}\" from \"{project.Name}\" project validation");
+                _logger.LogDebug($"Entity \"{entity.Name}\" from \"{project.Name}\" project:");
 
                 validations.Add(Log(_entityValidator.Validate(entity)));
 
                 foreach (var property in entity.Properties)
                 {
-                    _logger.LogDebug($"Property \"{property.Name}\" from \"{entity.Name}\" entity validation");
+                    _logger.LogDebug($"Property \"{property.Name}\" from \"{entity.Name}\" entity:");
 
                     validations.Add(Log(_propertyValidator.Validate(property)));
 
                     foreach (var validation in property.Validations)
                     {
-                        _logger.LogDebug($"Validation \"{validation.Type}\" from \"{property.Name}\" property validation");
+                        _logger.LogDebug($"Validation \"{validation.Type}\" from \"{property.Name}\" property:");
 
                         validations.Add(Log(_validationValidator.Validate(validation)));
 
-                        _logger.LogDebug($"Dependation \"{validation.Depends.On}\" and \"{validation.Depends.When}\" from \"{validation.Type}\" validation validation");
+                        _logger.LogDebug($"Dependation \"{validation.Depends.On}\" and \"{validation.Depends.When}\" from \"{validation.Type}\" validation:");
 
                         validations.Add(Log(_dependsValidator.Validate(validation.Depends)));
+
+                        if (!string.IsNullOrWhiteSpace(validation.Depends.When) &&
+                            !string.IsNullOrWhiteSpace(validation.Depends.On))
+                        {
+                            validations.AddRange(DependsValidations(entity, property, validation));
+                        }
                     }
                 }
             }
@@ -162,6 +167,85 @@ namespace Console.Services
             }
 
             return result.Errors.Any();
+        }
+
+        private List<bool> DependsValidations(Entity entity, Property property, Validation validation)
+        {
+            var validations = new List<bool>();
+
+            var foundCompared = false;
+
+            for (var i = 0; i <= entity.Properties.Count - 1; i++)
+            {
+                var comparedProperty = entity.Properties[i];
+
+                if (string.Equals(validation.Depends.On, comparedProperty.Name, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    foundCompared = true;
+
+                    validation.Depends.On = comparedProperty.Name;
+
+                    var whenDepends = (comparedProperty.Primitive.ToLower()) switch
+                    {
+                        Constants.PRIMITIVE_INT => Constants.PROPERTY_INT_DEPENDS_WHEN,
+                        Constants.PRIMITIVE_DECIMAL => Constants.PROPERTY_DECIMAL_DEPENDS_WHEN,
+                        Constants.PRIMITIVE_DATETIME => Constants.PROPERTY_DATETIME_DEPENDS_WHEN,
+                        Constants.PRIMITIVE_STRING => Constants.PROPERTY_STRING_DEPENDS_WHEN,
+                        Constants.PRIMITIVE_BOOL => Constants.PROPERTY_BOOL_DEPENDS_WHEN,
+                        _ => throw new InvalidOperationException($"Primitive \"{comparedProperty.Primitive.ToLower()}\" not implemented"),
+                    };
+
+                    var foundWhen = false;
+
+                    for (var y = 0; y <= whenDepends.Count() - 1; y++)
+                    {
+                        var when = whenDepends[y];
+
+                        if (when.ToLower() == validation.Depends.When.ToLower())
+                        {
+                            foundWhen = true;
+
+                            break;
+                        }
+                    }
+
+                    if (!foundWhen)
+                    {
+                        _logger.LogError($"Depends' \"{validation.Depends.On}\" and \"{validation.Depends.When}\" from \"{property.Name}\" property has a \"when\" ({validation.Depends.When}) not allowed for it's \"on\" ({validation.Depends.On}) primitive ({comparedProperty.Primitive}). Allowed values: {string.Join(", ", whenDepends)}");
+
+                        validations.Add(true);
+                    }
+
+                    break;
+                }
+            }
+
+            if (!foundCompared)
+            {
+                _logger.LogError($"Depends' \"{validation.Depends.On}\" and \"{validation.Depends.When}\" from \"{property.Name}\" property has a dependency not met");
+
+                validations.Add(true);
+            }
+
+            return validations;
+        }
+
+        private string UsedValidationDependencies(IList<Validation> validations, string type)
+        {
+            var dependsWhen = (type.ToLower()) switch
+            {
+                Constants.PRIMITIVE_INT => Constants.PROPERTY_INT_DEPENDS_WHEN,
+                Constants.PRIMITIVE_DECIMAL => Constants.PROPERTY_DECIMAL_DEPENDS_WHEN,
+                Constants.PRIMITIVE_DATETIME => Constants.PROPERTY_DATETIME_DEPENDS_WHEN,
+                Constants.PRIMITIVE_STRING => Constants.PROPERTY_STRING_DEPENDS_WHEN,
+                Constants.PRIMITIVE_BOOL => Constants.PROPERTY_BOOL_DEPENDS_WHEN,
+                _ => throw new InvalidOperationException($"Primitive \"{type}\" not implemented"),
+            };
+
+            var types = validations.Where(x => !string.IsNullOrWhiteSpace(x.Depends.When) &&
+                                               !dependsWhen.Contains(x.Depends.When)).Select(x => x.Depends.When);
+
+            return string.Join(", ", types);
         }
     }
 }

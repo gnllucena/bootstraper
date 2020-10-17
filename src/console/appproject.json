@@ -10,24 +10,24 @@
           "Name": "Id",
           "Column": "id",
           "Primitive": "int",
-          "PrimaryKey": true,
-          "Unique": true,
-          "Nullable": false
+          "IsPrimaryKey": true,
+          "IsUnique": true,
+          "IsNullable": false
         },
         {
           "Name": "Name",
           "Column": "name",
           "Primitive": "string",
-          "PrimaryKey": false,
-          "Nullable": false,
-          "Unique": false,
+          "IsPrimaryKey": false,
+          "IsNullable": false,
+          "IsUnique": false,
           "Validations": [
             {
-              "Type": "MinLenght",
+              "Type": "MinimumLength",
               "Value": "1"
             },
             {
-              "Type": "MaxLenght",
+              "Type": "MaximumLength",
               "Value": "100"
             },
             {
@@ -40,16 +40,16 @@
           "Name": "Email",
           "Column": "email",
           "Primitive": "string",
-          "PrimaryKey": false,
-          "Nullable": false,
-          "Unique": true,
+          "IsPrimaryKey": false,
+          "IsNullable": false,
+          "IsUnique": true,
           "Validations": [
             {
-              "Type": "MinLenght",
+              "Type": "MinimumLength",
               "Value": "5"
             },
             {
-              "Type": "MaxLenght",
+              "Type": "MaximumLength",
               "Value": "100"
             },
             {
@@ -66,16 +66,16 @@
           "Name": "Password",
           "Column": "password",
           "Primitive": "string",
-          "PrimaryKey": false,
-          "Nullable": false,
-          "Unique": false,
+          "IsPrimaryKey": false,
+          "IsNullable": false,
+          "IsUnique": false,
           "Validations": [
             {
-              "Type": "MinLenght",
+              "Type": "MinimumLength",
               "Value": "8"
             },
             {
-              "Type": "MaxLenght",
+              "Type": "MaximumLength",
               "Value": "30"
             },
             {
@@ -88,28 +88,32 @@
           "Name": "Active",
           "Column": "active",
           "Primitive": "bool",
-          "PrimaryKey": false,
-          "Unique": false,
-          "Nullable": false
+          "IsPrimaryKey": false,
+          "IsUnique": false,
+          "IsNullable": false
         },
         {
           "Name": "Confirmed",
           "Column": "confirmed",
           "Primitive": "bool",
-          "PrimaryKey": false,
-          "Unique": false,
-          "Nullable": false
+          "IsPrimaryKey": false,
+          "IsUnique": false,
+          "IsNullable": false
         },
         {
           "Name": "Created",
           "Column": "created",
           "Primitive": "datetime",
-          "PrimaryKey": false,
-          "Nullable": false,
-          "Unique": false,
+          "IsPrimaryKey": false,
+          "IsNullable": false,
+          "IsUnique": false,
           "Validations": [
             {
               "Type": "Required",
+              "Value": null
+            },
+            {
+              "Type": "Past",
               "Value": null
             }
           ]
@@ -118,9 +122,9 @@
           "Name": "CreatedBy",
           "Column": "createdby",
           "Primitive": "string",
-          "PrimaryKey": false,
-          "Nullable": false,
-          "Unique": false,
+          "IsPrimaryKey": false,
+          "IsNullable": false,
+          "IsUnique": false,
           "Validations": [
             {
               "Type": "Required",
@@ -132,9 +136,9 @@
           "Name": "Updated",
           "Column": "updated",
           "Primitive": "datetime",
-          "PrimaryKey": false,
-          "Nullable": true,
-          "Unique": false,
+          "IsPrimaryKey": false,
+          "IsNullable": true,
+          "IsUnique": false,
           "Validations": [
             {
               "Type": "Required",
@@ -143,6 +147,22 @@
                 "On": "Id",
                 "When": "GreaterThanZero"
               }
+            },
+            {
+              "Type": "Past",
+              "Value": null,
+              "Depends": {
+                "On": "Id",
+                "When": "GreaterThanZero"
+              }
+            },
+            {
+              "Type": "Empty",
+              "Value": null,
+              "Depends": {
+                "On": "Id",
+                "When": "Default"
+              }
             }
           ]
         },
@@ -150,9 +170,9 @@
           "Name": "UpdatedBy",
           "Column": "updatedby",
           "Primitive": "string",
-          "PrimaryKey": false,
-          "Nullable": true,
-          "Unique": false,
+          "IsPrimaryKey": false,
+          "IsNullable": true,
+          "IsUnique": true,
           "Validations": [
             {
               "Type": "Required",
@@ -160,6 +180,14 @@
               "Depends": {
                 "On": "Id",
                 "When": "GreaterThanZero"
+              }
+            },
+            {
+              "Type": "Empty",
+              "Value": null,
+              "Depends": {
+                "On": "Id",
+                "When": "Default"
               }
             }
           ]

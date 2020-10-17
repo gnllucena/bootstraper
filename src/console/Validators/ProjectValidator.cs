@@ -21,8 +21,8 @@ namespace Console.Validators
                 .WithMessage(x => $"Project's \"entities\" must be informed for \"{x.Name}\" project");
 
             RuleFor(x => x.Database)
-                .Must(x => CheckExistance(Constants.ProjectDatabases, x))
-                .WithMessage(x => $"Project's \"database\" has a type ({x.Database}) not allowed for \"{x.Name}\" project. Allowed values: {string.Join(", ", Constants.ProjectDatabases)}");
+                .Must(x => CheckExistance(Constants.PROJECT_DATABASE, x))
+                .WithMessage(x => $"Project's \"database\" has a type ({x.Database}) not allowed for \"{x.Name}\" project. Allowed values: {string.Join(", ", Constants.PROJECT_DATABASE)}");
         }
 
         private bool CheckExistance(List<string> list, string check)

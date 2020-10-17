@@ -14,17 +14,17 @@ namespace Console.Validators
                 .WithMessage(x => $"Validation's \"type\" must be informed for \"{x.Value}\" validation");
 
             RuleFor(x => x.Type)
-                .Must(x => CheckExistance(Constants.ValidationTypes, x))
-                .WithMessage(x => $"Validation's \"type\" not allowed for \"{x.Value}\" validation. Allowed values: {string.Join(", ", Constants.ValidationTypes)}");
+                .Must(x => CheckExistance(Constants.VALIDATION_TYPES, x))
+                .WithMessage(x => $"Validation's \"type\" not allowed for \"{x.Value}\" validation. Allowed values: {string.Join(", ", Constants.VALIDATION_TYPES)}");
 
             RuleFor(x => x.Value)
                 .NotEmpty()
-                .When(x => CheckExistance(Constants.ValidationDependenciesOnValue, x.Type))
+                .When(x => CheckExistance(Constants.VALIDATION_DEPENDENCIES_ON_VALUE, x.Type))
                 .WithMessage(x => $"Validation's \"value\" must be informed for \"{x.Type}\" validation");
 
             RuleFor(x => x.Value)
                 .ValidNumber()
-                .When(x => CheckExistance(Constants.ValidationDependenciesOnNumeralValue, x.Type))
+                .When(x => CheckExistance(Constants.VALIDATION_DEPENDENCIES_ON_NUMERAL_VALUE, x.Type))
                 .WithMessage(x => $"Validation's \"value\" must be a number for \"{x.Type}\" validation");
         }
 

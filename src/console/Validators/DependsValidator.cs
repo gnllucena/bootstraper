@@ -19,9 +19,9 @@ namespace Console.Validators
                 .WithMessage(x => $"Depends' \"on\" and \"when\" must be informed together");
 
             RuleFor(x => x.When)
-                .Must(x => CheckExistance(Constants.DependsWhens, x))
+                .Must(x => CheckExistance(Constants.DEPENDS_WHEN, x))
                 .When(x => !string.IsNullOrWhiteSpace(x.When))
-                .WithMessage(x => $"Depends' \"when\" has a value not allowed. Allowed values: {string.Join(", ", Constants.DependsWhens)}");
+                .WithMessage(x => $"Depends' \"when\" has a type ({x.When}) not allowed. Allowed values: {string.Join(", ", Constants.DEPENDS_WHEN)}");   
         }
 
         private bool CheckExistance(List<string> list, string check)

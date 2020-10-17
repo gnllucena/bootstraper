@@ -22,42 +22,46 @@ namespace Console.Validators
                 .NotEmpty()
                 .WithMessage(x => $"Property's \"primitive\" must be informed for \"{x.Name}\" property");
 
-            RuleFor(x => x.PrimaryKey)
+            RuleFor(x => x.IsPrimaryKey)
                 .NotNull()
                 .WithMessage(x => $"Property's \"primary key\" must be informed for \"{x.Name}\" property");
 
-            RuleFor(x => x.Nullable)
+            RuleFor(x => x.IsNullable)
                 .NotNull()
                 .WithMessage(x => $"Property's \"nullable\" must be informed for \"{x.Name}\" property");
 
+            RuleFor(x => x.IsUnique)
+                .NotNull()
+                .WithMessage(x => $"Property's \"unique\" must be informed for \"{x.Name}\" property");
+
             RuleFor(x => x.Primitive)
-                .Must(x => CheckExistance(Constants.PropertyPrimitivies, x))
-                .WithMessage(x => $"Property's \"primitive\" has a type ({x.Primitive}) not allowed for \"{x.Name}\" property. Allowed values: {string.Join(", ", Constants.PropertyPrimitivies)}");
+                .Must(x => CheckExistance(Constants.PROPERTY_PRIMITIVES, x))
+                .WithMessage(x => $"Property's \"primitive\" has a type ({x.Primitive}) not allowed for \"{x.Name}\" property. Allowed values: {string.Join(", ", Constants.PROPERTY_PRIMITIVES)}");
 
             RuleFor(x => x.Validations)
-                .Must(x => x.All(x => CheckExistance(Constants.PropertyIntValidations, x.Type)))
-                .When(x => x.Primitive.ToLower() == "int" && x.Validations.Any())
-                .WithMessage(x => $"Property's \"validations\" has a int type ({UsedValidationType(x.Validations, "int")}) not allowed for \"{x.Name}\" property. Allowed values: {string.Join(", ", Constants.PropertyIntValidations)}");
+                .Must(x => x.All(x => CheckExistance(Constants.PROPERTY_INT_VALIDATIONS, x.Type)))
+                .When(x => x.Primitive.ToLower() == Constants.PRIMITIVE_INT.ToLower() && x.Validations.Any())
+                .WithMessage(x => $"Property's \"validations\" has a int type ({UsedValidationType(x.Validations, Constants.PRIMITIVE_INT)}) not allowed for \"{x.Name}\" property. Allowed values: {string.Join(", ", Constants.PROPERTY_INT_VALIDATIONS)}");
 
             RuleFor(x => x.Validations)
-                .Must(x => x.All(x => CheckExistance(Constants.PropertyDatetimeValidations, x.Type)))
-                .When(x => x.Primitive.ToLower() == "datetime" && x.Validations.Any())
-                .WithMessage(x => $"Property's \"validations\" has a datetime type ({UsedValidationType(x.Validations, "datetime")}) not allowed for \"{x.Name}\" property. Allowed values: {string.Join(", ", Constants.PropertyDatetimeValidations)}");
+                .Must(x => x.All(x => CheckExistance(Constants.PROPERTY_DATETIME_VALIDATIONS, x.Type)))
+                .When(x => x.Primitive.ToLower() == Constants.PRIMITIVE_DATETIME.ToLower() && x.Validations.Any())
+                .WithMessage(x => $"Property's \"validations\" has a datetime type ({UsedValidationType(x.Validations, Constants.PRIMITIVE_DATETIME)}) not allowed for \"{x.Name}\" property. Allowed values: {string.Join(", ", Constants.PROPERTY_DATETIME_VALIDATIONS)}");
 
             RuleFor(x => x.Validations)
-                .Must(x => x.All(x => CheckExistance(Constants.PropertyStringValidations, x.Type)))
-                .When(x => x.Primitive.ToLower() == "string" && x.Validations.Any())
-                .WithMessage(x => $"Property's \"validations\" has a string type ({UsedValidationType(x.Validations, "string")}) not allowed for \"{x.Name}\" property. Allowed values: {string.Join(", ", Constants.PropertyStringValidations)}");
+                .Must(x => x.All(x => CheckExistance(Constants.PROPERTY_STRING_VALIDATIONS, x.Type)))
+                .When(x => x.Primitive.ToLower() == Constants.PRIMITIVE_STRING.ToLower() && x.Validations.Any())
+                .WithMessage(x => $"Property's \"validations\" has a string type ({UsedValidationType(x.Validations, Constants.PRIMITIVE_STRING)}) not allowed for \"{x.Name}\" property. Allowed values: {string.Join(", ", Constants.PROPERTY_STRING_VALIDATIONS)}");
 
             RuleFor(x => x.Validations)
-                .Must(x => x.All(x => CheckExistance(Constants.PropertyDecimalValidations, x.Type)))
-                .When(x => x.Primitive.ToLower() == "decimal" && x.Validations.Any())
-                .WithMessage(x => $"Property's \"validations\" has a decimal type ({UsedValidationType(x.Validations, "decimal")}) not allowed for \"{x.Name}\" property. Allowed values: {string.Join(", ", Constants.PropertyDecimalValidations)}");
+                .Must(x => x.All(x => CheckExistance(Constants.PROPERTY_DECIMAL_VALIDATIONS, x.Type)))
+                .When(x => x.Primitive.ToLower() == Constants.PRIMITIVE_DECIMAL.ToLower() && x.Validations.Any())
+                .WithMessage(x => $"Property's \"validations\" has a decimal type ({UsedValidationType(x.Validations, Constants.PRIMITIVE_DECIMAL)}) not allowed for \"{x.Name}\" property. Allowed values: {string.Join(", ", Constants.PROPERTY_DECIMAL_VALIDATIONS)}");
 
             RuleFor(x => x.Validations)
-                .Must(x => x.All(x => CheckExistance(Constants.PropertyBooleanValidations, x.Type)))
-                .When(x => x.Primitive.ToLower() == "boolean" && x.Validations.Any())
-                .WithMessage(x => $"Property's \"validations\" has a boolean type ({UsedValidationType(x.Validations, "boolean")}) not allowed for \"{x.Name}\" property. Allowed values: {string.Join(", ", Constants.PropertyBooleanValidations)}");
+                .Must(x => x.All(x => CheckExistance(Constants.PROPERTY_BOOL_VALIDATIONS, x.Type)))
+                .When(x => x.Primitive.ToLower() == Constants.PRIMITIVE_BOOL.ToLower() && x.Validations.Any())
+                .WithMessage(x => $"Property's \"validations\" has a boolean type ({UsedValidationType(x.Validations, Constants.PRIMITIVE_BOOL)}) not allowed for \"{x.Name}\" property. Allowed values: {string.Join(", ", Constants.PROPERTY_BOOL_VALIDATIONS)}");
         }
 
         private bool CheckExistance(List<string> list, string check)
@@ -79,19 +83,19 @@ namespace Console.Validators
         {
             var primitiveValidations = (type.ToLower()) switch
             {
-                "int" => Constants.PropertyIntValidations,
-                "decimal" => Constants.PropertyDecimalValidations,
-                "datetime" => Constants.PropertyDatetimeValidations,
-                "string" => Constants.PropertyStringValidations,
-                "bool" => Constants.PropertyBooleanValidations,
-                _ => throw new InvalidOperationException("Primitive not implemented"),
+                Constants.PRIMITIVE_INT => Constants.PROPERTY_INT_VALIDATIONS,
+                Constants.PRIMITIVE_DECIMAL => Constants.PROPERTY_DECIMAL_VALIDATIONS,
+                Constants.PRIMITIVE_DATETIME => Constants.PROPERTY_DATETIME_VALIDATIONS,
+                Constants.PRIMITIVE_STRING => Constants.PROPERTY_STRING_VALIDATIONS,
+                Constants.PRIMITIVE_BOOL => Constants.PROPERTY_BOOL_VALIDATIONS,
+                _ => throw new InvalidOperationException($"Primitive \"{type}\" not implemented"),
             };
 
-            var lowered = type.ToLower();
-
-            var types = validations.Where(x => !primitiveValidations.Contains(lowered)).Select(x => x.Type);
+            var types = validations.Where(x => !primitiveValidations.Contains(x.Type)).Select(x => x.Type);
 
             return string.Join(", ", types);
         }
+
+        
     }
 }
