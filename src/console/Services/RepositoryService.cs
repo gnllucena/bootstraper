@@ -27,6 +27,7 @@ namespace Console.Services
         public File GenerateRepository(Project project, Entity entity)
         {
             var primaryKey = entity.Properties.Where(x => x.IsPrimaryKey).First();
+            var nameCamelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
 
             var sb = new StringBuilder();
 
@@ -45,9 +46,9 @@ namespace Console.Services
             sb.AppendLine($"    public interface I{entity.Name}Repository");
             sb.AppendLine($"    {{");
             sb.AppendLine($"        Task<int> InsertAsync({entity.Name} {entity.Name.ToLower()});");
-            sb.AppendLine($"        Task UpdateAsync(int {entity.Name.ToLower()}Id, {entity.Name} {entity.Name.ToLower()});");
-            sb.AppendLine($"        Task DeleteAsync(int {entity.Name}Id);");
-            sb.AppendLine($"        Task<{entity.Name}> GetAsync(int {entity.Name.ToLower()}Id);");
+            sb.AppendLine($"        Task UpdateAsync(int {nameCamelCasePrimaryKey}, {entity.Name} {entity.Name.ToLower()});");
+            sb.AppendLine($"        Task DeleteAsync(int {nameCamelCasePrimaryKey});");
+            sb.AppendLine($"        Task<{entity.Name}> GetAsync(int {nameCamelCasePrimaryKey});");
             sb.Append(GenerateInterfaceMethod(entity, primaryKey));
             sb.AppendLine($"    }}");
             sb.AppendLine($"");
