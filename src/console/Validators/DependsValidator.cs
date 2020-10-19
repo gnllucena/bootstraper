@@ -11,12 +11,12 @@ namespace Console.Validators
             RuleFor(x => x.On)
                 .NotEmpty()
                 .When(x => !string.IsNullOrWhiteSpace(x.When))
-                .WithMessage(x => $"Depends' \"on\" and \"when\" must be informed together");
+                .WithMessage(x => $"Depends' \"on\" ({x.On}) and \"when\" ({x.When}) must be informed together");
 
             RuleFor(x => x.When)
                 .NotEmpty()
                 .When(x => !string.IsNullOrWhiteSpace(x.On))
-                .WithMessage(x => $"Depends' \"on\" and \"when\" must be informed together");
+                .WithMessage(x => $"Depends' \"on\" ({x.On}) and \"when\" ({x.When}) must be informed together");
 
             RuleFor(x => x.When)
                 .Must(x => CheckExistance(Constants.DEPENDS_WHEN, x))

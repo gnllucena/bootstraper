@@ -31,6 +31,7 @@ namespace Console
                 services.AddSingleton<IValidator<Entity>, EntityValidator>();
                 services.AddSingleton<IValidator<Property>, PropertyValidator>();
                 services.AddSingleton<IValidator<Validation>, ValidationValidator>();
+                services.AddSingleton<IValidator<PreAction>, PreActionValidator>();
 
                 services.AddTransient<IOrchestratorService, OrchestratorService>();
                 services.AddTransient<IClassService, ClassService>();

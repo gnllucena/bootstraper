@@ -95,7 +95,5 @@ namespace Console.Validators
 
             return string.Join(", ", types);
         }
-
-        
     }
 }

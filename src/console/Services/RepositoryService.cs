@@ -27,8 +27,7 @@ namespace Console.Services
         public File GenerateRepository(Project project, Entity entity)
         {
             var primaryKey = entity.Properties.Where(x => x.IsPrimaryKey).First();
-            var nameCamelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
-
+            
             var sb = new StringBuilder();
 
             sb.AppendLine($"using Dapper;");
@@ -43,14 +42,7 @@ namespace Console.Services
             sb.AppendLine($"");
             sb.AppendLine($"namespace {project.Name}.Domain.Repositories");
             sb.AppendLine($"{{");
-            sb.AppendLine($"    public interface I{entity.Name}Repository");
-            sb.AppendLine($"    {{");
-            sb.AppendLine($"        Task<int> InsertAsync({entity.Name} {entity.Name.ToLower()});");
-            sb.AppendLine($"        Task UpdateAsync(int {nameCamelCasePrimaryKey}, {entity.Name} {entity.Name.ToLower()});");
-            sb.AppendLine($"        Task DeleteAsync(int {nameCamelCasePrimaryKey});");
-            sb.AppendLine($"        Task<{entity.Name}> GetAsync(int {nameCamelCasePrimaryKey});");
             sb.Append(GenerateInterfaceMethod(entity, primaryKey));
-            sb.AppendLine($"    }}");
             sb.AppendLine($"");
             sb.AppendLine($"    public class {entity.Name}Repository : I{entity.Name}Repository");
             sb.AppendLine($"    {{");
@@ -88,32 +80,19 @@ namespace Console.Services
 
         public string GenerateInterfaceMethod(Entity entity, Property primaryKey)
         {
+            var parameters = Functions.GetParametersForPaginationDeclaration(entity);
+            var nameCamelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
+            var primitivePrimaryKey = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, primaryKey.Primitive);
+
             var sb = new StringBuilder();
 
-            var parameters = string.Empty;
-
-            foreach (var property in entity.Properties)
-            {
-                var nameCamelCaseProperty = Functions.GetCamelCaseValue(property.Name);
-                var primitive = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, property.Primitive);
-                var nullable = "?";
-
-                if (property.Primitive.ToLower() == Constants.PRIMITIVE_STRING)
-                {
-                    nullable = "";
-                }
-
-                if (property.Primitive.ToLower() == Constants.PRIMITIVE_DATETIME)
-                {
-                    parameters += $", DateTime? from{property.Name}, DateTime? to{property.Name}";
-                }
-                else
-                {
-                    parameters += $", {primitive}{nullable} {nameCamelCaseProperty}";
-                }
-            }
-
-            sb.AppendLine($"        Task<Pagination<{entity.Name}>> PaginateAsync(int offset, int limit{parameters});");
+            sb.AppendLine($"    public interface I{entity.Name}Repository");
+            sb.AppendLine($"    {{");
+            sb.AppendLine($"        Task<int> InsertAsync({entity.Name} {entity.Name.ToLower()});");
+            sb.AppendLine($"        Task UpdateAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey}, {entity.Name} {entity.Name.ToLower()});");
+            sb.AppendLine($"        Task DeleteAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey});");
+            sb.AppendLine($"        Task<{entity.Name}> GetAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey});");
+            sb.AppendLine($"        Task<Pagination<{entity.Name}>> PaginateAsync(int offset, int limit, {parameters});");
 
             foreach (var property in entity.Properties)
             {
@@ -129,13 +108,13 @@ namespace Console.Services
                 {
                     var primitiveProperty = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, property.Primitive);
                     var camelCaseProperty = Functions.GetCamelCaseValue(property.Name);
-
-                    var primitivePrimaryKey = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, primaryKey.Primitive);
                     var camelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
 
                     sb.AppendLine($"        Task<bool> ExistsBy{property.Name}AndDifferentThan{primaryKey.Name}Async({primitiveProperty} {camelCaseProperty}, {primitivePrimaryKey} {camelCasePrimaryKey});");
                 }
             }
+
+            sb.AppendLine($"    }}");
 
             return sb.ToString();
         }
@@ -147,7 +126,7 @@ namespace Console.Services
 
             var sb = new StringBuilder();
 
-            sb.AppendLine($"        public async Task<{primaryKey.Primitive}> InsertAsync({entity.Name} {entityCamelCase})");
+            sb.AppendLine($"        public async Task<{primitivePrimaryKey}> InsertAsync({entity.Name} {entityCamelCase})");
             sb.AppendLine($"        {{");
             sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is inserting a new {entity.Name} - {{{entityCamelCase}.ToString()}}\");");
             sb.AppendLine($"");
@@ -259,35 +238,28 @@ namespace Console.Services
 
         public string GeneratePaginationMethod(Entity entity)
         {
-            var parameters = string.Empty;
             var log = string.Empty;
+
+            var parameters = Functions.GetParametersForPaginationDeclaration(entity);
 
             foreach (var property in entity.Properties)
             {
                 var nameCamelCaseProperty = Functions.GetCamelCaseValue(property.Name);
                 var primitive = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, property.Primitive);
-                var nullable = "?";
-
-                if (property.Primitive.ToLower() == Constants.PRIMITIVE_STRING)
-                {
-                    nullable = "";
-                }
 
                 if (property.Primitive.ToLower() == Constants.PRIMITIVE_DATETIME)
                 {
-                    parameters += $", DateTime? from{property.Name}, DateTime? to{property.Name}";
                     log += $" - from{property.Name}: {{from{property.Name}}} - to{property.Name}: {{to{property.Name}}}";
                 }
                 else
                 {
-                    parameters += $", {primitive}{nullable} {nameCamelCaseProperty}";
                     log += $" - {nameCamelCaseProperty}: {{{nameCamelCaseProperty}}}";
                 }
             }
 
             var sb = new StringBuilder();
 
-            sb.AppendLine($"        public async Task<Pagination<{entity.Name}>> PaginateAsync(int offset, int limit{parameters})");
+            sb.AppendLine($"        public async Task<Pagination<{entity.Name}>> PaginateAsync(int offset, int limit, {parameters})");
             sb.AppendLine($"        {{");
             sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is paginating {entity.Name} - offset: {{offset}} - limit: {{limit}}{log}\");");
             sb.AppendLine($"");
@@ -363,7 +335,7 @@ namespace Console.Services
                 sb.AppendLine($"        {{");
                 sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is searching for a match with {{{nameCamelCaseProperty}}} in column {property.Name} on {entity.Name} table\");");
                 sb.AppendLine($"");
-                sb.AppendLine($"            var result = await _sqlService.ExecuteScalarAsync<bool>(UserQuery.EXISTS_BY_{property.Name.ToUpper()}, CommandType.Text, new");
+                sb.AppendLine($"            var result = await _sqlService.ExecuteScalarAsync<bool>({entity.Name}Query.EXISTS_BY_{property.Name.ToUpper()}, CommandType.Text, new");
                 sb.AppendLine($"            {{");
                 sb.AppendLine($"                {property.Column} = {nameCamelCaseProperty}");
                 sb.AppendLine($"            }});");
@@ -398,7 +370,7 @@ namespace Console.Services
                     sb.AppendLine($"        {{");
                     sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is searching for a match with {{{camelCaseProperty}}} in column {property.Name} on {entity.Name} table with a different {primaryKey.Name} than {{{camelCasePrimaryKey}}}\");");
                     sb.AppendLine($"");
-                    sb.AppendLine($"            var result = await _sqlService.ExecuteScalarAsync<bool>(UserQuery.EXISTS_BY_{property.Name.ToUpper()}, CommandType.Text, new");
+                    sb.AppendLine($"            var result = await _sqlService.ExecuteScalarAsync<bool>({entity.Name}Query.EXISTS_BY_{property.Name.ToUpper()}, CommandType.Text, new");
                     sb.AppendLine($"            {{");
                     sb.AppendLine($"                {property.Column} = {camelCaseProperty},");
                     sb.AppendLine($"                {primaryKey.Column} = {camelCasePrimaryKey}");

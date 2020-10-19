@@ -5,13 +5,37 @@
     {
       "Name": "User",
       "Table": "user",
+      "PreInserts": [
+        {
+          "Property": "Created",
+          "Set": "DateTime.Now"
+        },
+        {
+          "Property": "CreatedBy",
+          "Set": "_authenticatedService.GetUserName()"
+        }
+      ],
+      "PreUpdates": [
+        {
+          "Property": "Id",
+          "Set": "id"
+        },
+        {
+          "Property": "Updated",
+          "Set": "DateTime.Now"
+        },
+        {
+          "Property": "UpdatedBy",
+          "Set": "_authenticatedService.GetUserName()"
+        }
+      ],
       "Properties": [
         {
           "Name": "Id",
           "Column": "id",
           "Primitive": "int",
           "IsPrimaryKey": true,
-          "IsUnique": true,
+          "IsUnique": false,
           "IsNullable": false
         },
         {
@@ -103,7 +127,7 @@
         {
           "Name": "Created",
           "Column": "created",
-          "Primitive": "datetime",
+          "Primitive": "DateTime",
           "IsPrimaryKey": false,
           "IsNullable": false,
           "IsUnique": false,
@@ -135,7 +159,7 @@
         {
           "Name": "Updated",
           "Column": "updated",
-          "Primitive": "datetime",
+          "Primitive": "DateTime",
           "IsPrimaryKey": false,
           "IsNullable": true,
           "IsUnique": false,
@@ -161,7 +185,7 @@
               "Value": null,
               "Depends": {
                 "On": "Id",
-                "When": "EqualToZero"
+                "When": "EqualTozero"
               }
             }
           ]
@@ -172,7 +196,7 @@
           "Primitive": "string",
           "IsPrimaryKey": false,
           "IsNullable": true,
-          "IsUnique": true,
+          "IsUnique": false,
           "Validations": [
             {
               "Type": "Required",

@@ -22,7 +22,7 @@ namespace Console.Validators
                 .WithMessage(x => $"Entity's \"properties\" must be informed for \"{x.Name}\" entity");
 
             RuleFor(x => x.Properties)
-                .Must(x => x.Count(x => x.IsPrimaryKey) == 1)
+                .Must(x => x.Any(x => x.IsPrimaryKey))
                 .WithMessage(x => $"Entity's \"properties\" must have only one primary key for \"{x.Name}\" entity. Found: {string.Join(", ", x.Properties.Where(x => x.IsPrimaryKey).Select(x => x.Name))}");
 
             RuleFor(x => x.Properties)

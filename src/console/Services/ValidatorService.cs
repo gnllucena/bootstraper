@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 
 namespace Console.Services
 {
@@ -29,6 +28,7 @@ namespace Console.Services
         public File GenerateValidator(Project project, Entity entity)
         {
             var primaryKey = entity.Properties.Where(x => x.IsPrimaryKey).First();
+            var nameCamelCaseEntity = Functions.GetCamelCaseValue(entity.Name);
             
             var sb = new StringBuilder();
 
@@ -47,9 +47,9 @@ namespace Console.Services
             sb.Append(GenerateRules(entity));
             sb.AppendLine($"        }}");
             sb.AppendLine($"");
-            sb.AppendLine($"        protected override void EnsureInstanceNotNull(object entity)");
+            sb.AppendLine($"        protected override void EnsureInstanceNotNull(object {nameCamelCaseEntity})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            if (entity == null)");
+            sb.AppendLine($"            if ({nameCamelCaseEntity} == null)");
             sb.AppendLine($"            {{");
             sb.AppendLine($"                var failure = new ValidationFailure(\"{entity.Name}\", \"{entity.Name} must be informed\", null);");
             sb.AppendLine($"");
