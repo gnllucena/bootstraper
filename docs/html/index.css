@@ -1,0 +1,70 @@
+body {
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+}
+
+.col-12 { width: 100%; }
+.col-11 { width: 91.6666666667%; }
+.col-10 { width: 83.3333333333%; }
+.col-9 { width: 75%; }
+.col-8 { width: 66.6666666667%; }
+.col-7 { width: 58.3333333333%; }
+.col-6 { width: 50%; }
+.col-5 { width: 41.6666666667%; }
+.col-4 { width: 33.3333333333%; }
+.col-3 { width: 25%; }
+.col-2 { width: 16.6666666667%; }
+.col-1 { width: 8.3333333333%; }
+
+.content-label {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: normal;
+  color: #159957;
+}
+
+.content-inputs-wrapper {
+  display: flex;
+}
+
+.content-input-wrapper {
+  display: grid;
+  padding: 0 10px 10px 0;
+}
+
+.content-input-wrapper input, .content-input-wrapper label, .content-input-wrapper select {
+  width: 100%;
+}
+
+.property-wrapper {
+  margin-left: 50px;
+}
+
+.validation-wrapper {
+  margin-left: 50px;
+}
+
+input, select, option {
+  margin: 0;
+  text-indent: 0px;
+  display: inline-block;
+  cursor: text;
+  margin: 0em;
+  font: 400 13.3333px Arial;
+  padding: 1px 2px;
+  height: 30px;
+}
+
+.icon {
+  margin: 7px;
+}
+
+.icon-space {
+  width: 23px;
+  height: 23px;
+  margin-top: 30px;
+}
+
+.icon-space:hover {
+  cursor: pointer;
+}

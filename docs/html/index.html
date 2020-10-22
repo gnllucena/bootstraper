@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="variables.js"></script>
+    <script src="index.js"></script>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="icons.css">
+  </head>
+  <body>
+    <div class="content-wrapper">
+      <div class="content-header-wrapper">
+        <label class="content-label">Project</label>
+      </div>  
+      <div class="content-inputs-wrapper col-10">
+        <div class="content-input-wrapper col-2">
+          <label>Name</label>
+          <input name="project-name" class="project-name" />
+        </div>
+        
+        <div class="content-input-wrapper col-2">
+          <label>Database</label>
+          <select name="project-database" class="project-database"></select>
+        </div>
+
+        <div class="icon-space" onclick="addedNewEntity(this);">
+          <i class="icon gg-math-plus"></i>
+        </div>
+      </div>            
+    </div>
+  </body>
+</html>

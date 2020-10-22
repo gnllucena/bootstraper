@@ -38,9 +38,9 @@ namespace Console
         public static readonly List<string> DEPENDS_WHEN = new List<string>
         {
             "GreaterThanZero",
-            "GreaterThanOrEqualTo",
+            "GreaterThanOrEqualToZero",
             "LessThanZero",
-            "LessThanOrEqualTo",
+            "LessThanOrEqualToZero",
             "EqualToZero",
             "Empty",
             "NotEmpty"
@@ -102,9 +102,9 @@ namespace Console
         public static readonly List<string> PROPERTY_INT_DEPENDS_WHEN = new List<string>
         {
             "GreaterThanZero",
-            "GreaterThanOrEqualTo",
+            "GreaterThanOrEqualToZero",
             "LessThanZero",
-            "LessThanOrEqualTo",
+            "LessThanOrEqualToZero",
             "EqualToZero",
             "Empty",
             "NotEmpty"
@@ -113,9 +113,9 @@ namespace Console
         public static readonly List<string> PROPERTY_DECIMAL_DEPENDS_WHEN = new List<string>
         {
             "GreaterThanZero",
-            "GreaterThanOrEqualTo",
+            "GreaterThanOrEqualToZero",
             "LessThanZero",
-            "LessThanOrEqualTo",
+            "LessThanOrEqualToZero",
             "EqualToZero",
             "Empty",
             "NotEmpty"
