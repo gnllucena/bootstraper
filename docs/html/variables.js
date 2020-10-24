@@ -1,3 +1,12 @@
+$(document).ready(function() {
+  clearSelect($(".project-database"));
+
+  $.each(PROJECT_DATABASE, function(index, value) {
+    $(".project-database").append($('<option></option>').val(value).html(value));
+  });
+});
+
+
 var PROJECT_DATABASE = [
   "Mysql"
 ];

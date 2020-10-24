@@ -1,54 +1,27 @@
 $(document).ready(function() {
   $(".content-wrapper").after(addEntity());
-
-  clearSelect($(".project-database"));
-
-  $.each(PROJECT_DATABASE, function(index, value) {
-    $(".project-database").append($('<option></option>').val(value).html(value));
-  });
-
-  $(document).on("blur", ".property-name", function(element) {
-    var entity = $(element.target).parent().parent().parent().parent().parent();
-
-    var values = $.map($(entity).find(".property-name"), function(element) {
-      var value = $(element).val();
-
-      if (value && value.length > 0) {
-        return value;
-      }
-    });
-
-    $.each($(entity).find(".validation-depends-on"), function(index, element) {
-      clearSelect(element);
-
-      $.each(values, function(index, value) {
-        $(element).append(`<option value="${value}">${value}</option>`);
-      });
-    });
-  });
 });
 
-function clearSelect(element) {
-  $(element).empty();
-  $(element).append($('<option></option>'));
-}
-
-// ======================================================================
-
 function addedNewEntity(element) {
-  $(element).parent().parent().append(addEntity(element));
+  $(element).parent().parent().append(addEntity());
 }
 
 function addedNewProperty(element) {
   var properties = $(element).parent().parent().find(".content-entity-properties");
 
-  properties.append(addProperty(element));
+  var entityWrapper = $(element).parent().parent().parent();
+
+  properties.append(addProperty(entityWrapper));
 }
 
 function addedNewValidation(element) {
   var validations = $(element).parent().parent().find(".content-property-validations");
 
-  validations.append(addValidation(element));
+  var entityWrapper = $(element).parent().parent().parent().parent().parent();
+
+  var propertyWrapper = $(element).parent();
+
+  validations.append(addValidation(entityWrapper, propertyWrapper));
 }
 
 function removedExistingEntity(element) {
@@ -63,10 +36,8 @@ function removedExistingValidation(element) {
   $(element).parent().parent().remove();
 }
 
-// ======================================================================
-
 function addEntity(element) {
-  var entity = `
+  var row = `
     <div class="content-wrapper entity-wrapper">
       <div class="content-header-wrapper">
         <label class="content-label">Entity</label>
@@ -95,17 +66,17 @@ function addEntity(element) {
     </div>
   `;
 
-  var element = $(entity);
+  var entity = $(row);
 
-  var properties = $(element).find(".content-entity-properties");
+  var properties = $(entity).find(".content-entity-properties");
 
   properties.append(addProperty(element));
 
-  return element;
+  return entity;
 }
 
-function addProperty(element) {
-  var property = `
+function addProperty(entityWrapper) {
+  var row = `
     <div class="content-wrapper property-wrapper">
       <div class="content-header-wrapper">
         <label class="content-label">Property</label>
@@ -174,19 +145,19 @@ function addProperty(element) {
     return `<option value="${value}">${value}</option>`;
   });
 
-  property = property.replace("replace_property_primitive_options", propertyPrimitiveOptions);
+  row = row.replace("replace_property_primitive_options", propertyPrimitiveOptions);
 
-  var element = $(property);
+  var property = $(row);
 
-  var properties = $(element).find(".content-property-validations");
+  var validations = $(property).find(".content-property-validations");
 
-  properties.append(addValidation(element));
+  validations.append(addValidation(entityWrapper));
 
-  return element;
+  return property;
 }
 
-function addValidation(element) {
-  var validation = `
+function addValidation(entityWrapper, propertyWrapper) {
+  var row = `
     <div class="content-wrapper validation-wrapper">
       <div class="content-header-wrapper">
         <label class="content-label">Validation</label>
@@ -210,6 +181,7 @@ function addValidation(element) {
           <label>Depends On</label>
           <select name="validation-depends-on" class="validation-depends-on">
             <option></option>
+            replace_depends_on_options
           </select>
         </div>
 
@@ -228,34 +200,41 @@ function addValidation(element) {
     </div>
   `;
 
-  // var entity = $(element.target).parent().parent().parent().parent().parent();
+  if (entityWrapper) {
+    var values = getPropertyNameValues(entityWrapper);
 
-  // var values = $.map($(entity).find(".property-name"), function(element) {
-  //   var value = $(element).val();
+    var dependsOnOptions = $.map(values, function(value, index) {
+      return `<option value="${value}">${value}</option>`;
+    });
 
-  //   if (value && value.length > 0) {
-  //     return value;
-  //   }
-  // });
+    row = row.replace("replace_depends_on_options", dependsOnOptions);
+  }
 
-  // $.each($(entity).find(".validation-depends-on"), function(index, element) {
-  //   clearSelect(element);
+  if (propertyWrapper) {
+    var primitive = $(propertyWrapper).find(".property-primitive").val();
 
-  //   $.each(values, function(index, value) {
-  //     $(element).append(`<option value="${value}">${value}</option>`);
-  //   });
-  // });
+    if (primitive) {
+      var validations = getValidations(primitive);
 
-  var dependsWhenOptions = $.map(DEPENDS_WHEN, function(value, index) {
-    return `<option value="${value}">${value}</option>`;
-  });
+      var validationTypesOptions = $.map(validations, function(value, index) {
+        return `<option value="${value}">${value}</option>`;
+      });
 
-  var validationTypeOptions = $.map(VALIDATION_TYPES, function(value, index) {
-    return `<option value="${value}">${value}</option>`;
-  });
+      row = row.replace("replace_validation_type_options", validationTypesOptions);
+    }
+  }
 
-  validation = validation.replace("replace_depends_when_options", dependsWhenOptions);
-  validation = validation.replace("replace_validation_type_options", validationTypeOptions);
-
-  return $(validation);
+  return $(row);
 }
+
+function getPropertyNameValues(entity) {
+  var values = $.map($(entity).find(".property-name"), function(element) {
+    var value = $(element).val();
+
+    if (value && value.length > 0) {
+      return value;
+    }
+  });
+
+  return values;
+}  
