@@ -22,17 +22,38 @@ function watcherPropertyNameChange() {
 
 function watcherPropertyPrimitiveChange() {
   $(document).on("change", ".property-primitive", function(primitiveElement) {
-    var entity = $(primitiveElement.target).parent().parent().parent();
+    var property = $(primitiveElement.target).parent().parent().parent();
 
-    var primitive = $(entity).find('select[class="property-primitive"]').val();
+    var primitive = $(property).find('select[class="property-primitive"]').val();
 
-    $.each($(entity).find(".validation-type"), function(index, validationElement) {
-      clearSelect(validationElement);
+    $.each($(property).find(".validation-type"), function(index, validationTypeElement) {
+      clearSelect(validationTypeElement);
+
+      if (!primitive) {
+        return;
+      }
 
       var validations = getValidations(primitive);
 
       $.each(validations, function(index, value) {
-        $(validationElement).append(`<option value="${value}">${value}</option>`);
+        $(validationTypeElement).append(`<option value="${value}">${value}</option>`);
+      });
+    });
+
+    var properties = $(property).parent();
+
+    $.each($(properties).find(".validation-depends-on"), function(index, validationDependsOnElement) {
+      // clearSelect(validationDependsWhenElement);
+
+
+      if (!primitive) {
+        return;
+      }
+
+      var dependsWhen = getDependsWhen(primitive);
+
+      $.each(dependsWhen, function(index, value) {
+        $(validationDependsWhenElement).append(`<option value="${value}">${value}</option>`);
       });
     });
   });
@@ -48,16 +69,22 @@ function watcherValidationDependsOnChange() {
 
     var properties = $(input).parent().parent();
 
+    var row = $(validationDependsOnElement.target).parent().parent();
+
+    var validationDependsWhen = $(row).find(".validation-depends-when");
+
+    clearSelect(validationDependsWhen);
+
     var primitive = $(properties).find(".property-primitive").val();
     
-    $.each($(entity).find(".validation-depends-when"), function(index, validationDependsWhenElement) {
-      clearSelect(validationDependsWhenElement);
+    if (!primitive) {
+      return;
+    }
 
-      var dependsWhen = getDependsWhen(primitive);
-
-      $.each(dependsWhen, function(index, value) {
-        $(validationDependsWhenElement).append(`<option value="${value}">${value}</option>`);
-      });
+    var dependsWhen = getDependsWhen(primitive);
+    
+    $.each(dependsWhen, function(index, value) {
+      $(input).append(`<option value="${value}">${value}</option>`);
     });
   });
 }
