@@ -42,18 +42,23 @@ function watcherPropertyPrimitiveChange() {
 
     var properties = $(property).parent();
 
+    var nameProperty = $(property).find(".property-name").val();
+
     $.each($(properties).find(".validation-depends-on"), function(index, validationDependsOnElement) {
-      // clearSelect(validationDependsWhenElement);
+      var nameDependsOn = $(validationDependsOnElement).val();
 
-
-      if (!primitive) {
+      if (nameProperty !== nameDependsOn) {
         return;
       }
 
+      var validationDependsWhen = $(validationDependsOnElement).parent().parent().find(".validation-depends-when");
+
       var dependsWhen = getDependsWhen(primitive);
 
+      clearSelect(validationDependsWhen);
+
       $.each(dependsWhen, function(index, value) {
-        $(validationDependsWhenElement).append(`<option value="${value}">${value}</option>`);
+        $(validationDependsWhen).append(`<option value="${value}">${value}</option>`);
       });
     });
   });
@@ -84,7 +89,7 @@ function watcherValidationDependsOnChange() {
     var dependsWhen = getDependsWhen(primitive);
     
     $.each(dependsWhen, function(index, value) {
-      $(input).append(`<option value="${value}">${value}</option>`);
+      $(validationDependsWhen).append(`<option value="${value}">${value}</option>`);
     });
   });
 }
