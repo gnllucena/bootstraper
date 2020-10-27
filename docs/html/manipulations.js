@@ -173,6 +173,10 @@ function addValidation(entityWrapper, propertyWrapper) {
           <label>Value</label>
           <input name="validation-value" />    
         </div>
+        
+        <div class="icon-space remove-validation" onclick="removedExistingValidation(this);">
+          <i class="icon gg-trash"></i>
+        </div>
       </div>
       <div class="row">
         <div class="content-input-wrapper col-md-4">
@@ -189,10 +193,6 @@ function addValidation(entityWrapper, propertyWrapper) {
             <option></option>
             replace_depends_when_options
           </select>
-        </div>
-
-        <div class="icon-space remove-validation" onclick="removedExistingValidation(this);">
-          <i class="icon gg-trash"></i>
         </div>
       </div>
     </div>
