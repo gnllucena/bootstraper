@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="html/icons.css">
 
 <div class="bootstrap-wrapper">
-  <div class="row">
+  <div class="row" style="margin-bottom: -10px;">
     <div class="col-md-6">
       <div class="content-wrapper">
         <div class="content-header-wrapper">
