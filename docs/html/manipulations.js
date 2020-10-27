@@ -116,7 +116,7 @@ function addProperty(entityWrapper) {
         </div>
         
         <div class="content-input-wrapper col-md-3">
-          <label>Is Nullable</label>
+          <label>Is Null</label>
           <select name="property-nullable" class="property-nullable">
             <option></option>
             <option value="true">Yes</option>
