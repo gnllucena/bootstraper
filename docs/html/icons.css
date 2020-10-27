@@ -8,7 +8,7 @@
 
 .gg-math-plus {
     margin-left: 3px;
-    margin-top: 7px;
+    margin-top: 10px !important;
     position: relative;
     transform: scale(var(--ggs,1));
     width: 16px;
@@ -38,7 +38,7 @@
         inset 2px 0 0;
     border-bottom-left-radius: 1px;
     border-bottom-right-radius: 1px;
-    margin-top: 4px
+    margin-top: 6px !important;
 }
 
 .gg-trash::after,
