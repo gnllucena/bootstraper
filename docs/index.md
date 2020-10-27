@@ -8,13 +8,13 @@
 <link rel="stylesheet" href="html/icons.css">
 
 <div class="bootstrap-wrapper">
-  <div class="row" style="margin-bottom: -10px;">
+  <div class="row">
     <div class="col-md-6">
       <div class="content-wrapper">
         <div class="content-header-wrapper">
           <label class="content-label">Project</label>
         </div>  
-        <div class="row">
+        <div class="row" style="margin-bottom: -10px;">
           <div class="content-input-wrapper col-md-4">
             <label>Name</label>
             <input name="project-name" class="project-name" />
