@@ -28,10 +28,6 @@ function removedExistingEntity(element) {
   $(element).parent().parent().remove();
 }
 
-function removedExistingProperty(element) {
-  $(element).parent().parent().remove();
-}
-
 function removedExistingValidation(element) {
   $(element).parent().parent().remove();
 }
@@ -42,22 +38,22 @@ function addEntity(element) {
       <div class="content-header-wrapper">
         <label class="content-label">Entity</label>
       </div>  
-      <div class="content-inputs-wrapper col-10">
-        <div class="content-input-wrapper col-2">
+      <div class="row">
+        <div class="content-input-wrapper col-md-4">
           <label>Name</label>
           <input name="entity-name" class="entity-name" />    
         </div>
         
-        <div class="content-input-wrapper col-2">
+        <div class="content-input-wrapper col-md-4">
           <label>Table</label>
           <input name="entity-name" class="entity-name" />    
         </div>
 
-        <div class="icon-space" onclick="addedNewProperty(this);">
+        <div class="icon-space add-property" onclick="addedNewProperty(this);">
           <i class="icon gg-math-plus"></i>
         </div>
         
-        <div class="icon-space" onclick="removedExistingEntity(this);">
+        <div class="icon-space remove-entity" onclick="removedExistingEntity(this);">
           <i class="icon gg-trash"></i>
         </div>
       </div>
@@ -82,26 +78,35 @@ function addProperty(entityWrapper) {
         <label class="content-label">Property</label>
       </div>
 
-      <div class="content-inputs-wrapper col-10">
-        <div class="content-input-wrapper col-2">
+      <div class="row">
+        <div class="content-input-wrapper col-md-3">
           <label>Name</label>
           <input name="property-name" class="property-name" />    
         </div>
 
-        <div class="content-input-wrapper col-2">
+        <div class="content-input-wrapper col-md-3">
           <label>Column</label>
           <input name="property-column" class="property-column" />
         </div>
       
-        <div class="content-input-wrapper col-2">
+        <div class="content-input-wrapper col-md-3">
           <label>Primitive</label>
           <select name="property-primitive" class="property-primitive">
             <option></option>
             replace_property_primitive_options
           </select>
         </div>
+
+        <div class="icon-space add-validation" onclick="addedNewValidation(this);">
+          <i class="icon gg-math-plus"></i>
+        </div>
         
-        <div class="content-input-wrapper col-2">
+        <div class="icon-space remove-property">
+          <i class="icon gg-trash"></i>
+        </div>
+      </div>
+      <div class="row">
+        <div class="content-input-wrapper col-md-3">
           <label>Is PK</label>
           <select name="property-primarykey" class="property-primarykey">
             <option></option>
@@ -110,7 +115,7 @@ function addProperty(entityWrapper) {
           </select>
         </div>
         
-        <div class="content-input-wrapper col-2">
+        <div class="content-input-wrapper col-md-3">
           <label>Is Nullable</label>
           <select name="property-nullable" class="property-nullable">
             <option></option>
@@ -119,21 +124,13 @@ function addProperty(entityWrapper) {
           </select>
         </div>
 
-        <div class="content-input-wrapper col-2">
+        <div class="content-input-wrapper col-md-3">
           <label>Is Unique</label>
           <select name="property-unique" class="property-unique">
             <option></option>
             <option value="true">Yes</option>
             <option value="no">No</option>
           </select>
-        </div>
-
-        <div class="icon-space" onclick="addedNewValidation(this);">
-          <i class="icon gg-math-plus"></i>
-        </div>
-        
-        <div class="icon-space" onclick="removedExistingProperty(this);">
-          <i class="icon gg-trash"></i>
         </div>
       </div>
 
@@ -163,8 +160,8 @@ function addValidation(entityWrapper, propertyWrapper) {
         <label class="content-label">Validation</label>
       </div>
 
-      <div class="content-inputs-wrapper col-10">
-        <div class="content-input-wrapper col-3">
+      <div class="row">
+        <div class="content-input-wrapper col-md-4">
           <label>Type</label>
           <select name="validation-type" class="validation-type">
             <option></option>
@@ -172,12 +169,13 @@ function addValidation(entityWrapper, propertyWrapper) {
           </select>
         </div>
         
-        <div class="content-input-wrapper col-2">
+        <div class="content-input-wrapper col-md-4">
           <label>Value</label>
           <input name="validation-value" />    
         </div>
-
-        <div class="content-input-wrapper col-3">
+      </div>
+      <div class="row">
+        <div class="content-input-wrapper col-md-4">
           <label>Depends On</label>
           <select name="validation-depends-on" class="validation-depends-on">
             <option></option>
@@ -185,7 +183,7 @@ function addValidation(entityWrapper, propertyWrapper) {
           </select>
         </div>
 
-        <div class="content-input-wrapper col-3">
+        <div class="content-input-wrapper col-md-4">
           <label>Depends When</label>
           <select name="validation-depends-when" class="validation-depends-when">
             <option></option>
@@ -193,7 +191,7 @@ function addValidation(entityWrapper, propertyWrapper) {
           </select>
         </div>
 
-        <div class="icon-space" onclick="removedExistingValidation(this);">
+        <div class="icon-space remove-validation" onclick="removedExistingValidation(this);">
           <i class="icon gg-trash"></i>
         </div>
       </div>

@@ -2,7 +2,32 @@ $(document).ready(function() {
   watcherPropertyNameChange();
   watcherPropertyPrimitiveChange();
   watcherValidationDependsOnChange();
+  watcherRemovePropertyChange();
 });
+
+function watcherRemovePropertyChange() {
+  $(document).on("click", ".remove-property", function(element) {
+    var nameProperty = $(element.target).parent().parent().find(".property-name").val();
+
+    var properties = $(element.target).parent().parent().parent().parent();
+
+    $.each($(properties).find(".validation-depends-on"), function(index, validationDependsOn) {
+      var nameDependsOn = $(validationDependsOn).val();
+
+      if (nameDependsOn !== nameProperty ||
+          nameDependsOn === "") {
+        return;
+      }
+
+      var validationDependsWhen = $(validationDependsOn).parent().parent().find(".validation-depends-when");
+
+      clearSelect(validationDependsOn);
+      clearSelect(validationDependsWhen);
+    });
+
+    $(element.target).parent().parent().parent().remove();
+  });
+}
 
 function watcherPropertyNameChange() {
   $(document).on("blur", ".property-name", function(element) {
@@ -10,24 +35,24 @@ function watcherPropertyNameChange() {
 
     var values = getPropertyNameValues(entity);
 
-    $.each($(entity).find(".validation-depends-on"), function(index, element) {
-      clearSelect(element);
+    $.each($(entity).find(".validation-depends-on"), function(index, validationDependsOn) {
+      clearSelect(validationDependsOn);
 
       $.each(values, function(index, value) {
-        $(element).append(`<option value="${value}">${value}</option>`);
+        $(validationDependsOn).append(`<option value="${value}">${value}</option>`);
       });
     });
   });
 }
 
 function watcherPropertyPrimitiveChange() {
-  $(document).on("change", ".property-primitive", function(primitiveElement) {
-    var property = $(primitiveElement.target).parent().parent().parent();
+  $(document).on("change", ".property-primitive", function(propertyPrimitive) {
+    var property = $(propertyPrimitive.target).parent().parent().parent();
 
     var primitive = $(property).find('select[class="property-primitive"]').val();
 
-    $.each($(property).find(".validation-type"), function(index, validationTypeElement) {
-      clearSelect(validationTypeElement);
+    $.each($(property).find(".validation-type"), function(index, validationType) {
+      clearSelect(validationType);
 
       if (!primitive) {
         return;
@@ -36,7 +61,7 @@ function watcherPropertyPrimitiveChange() {
       var validations = getValidations(primitive);
 
       $.each(validations, function(index, value) {
-        $(validationTypeElement).append(`<option value="${value}">${value}</option>`);
+        $(validationType).append(`<option value="${value}">${value}</option>`);
       });
     });
 
@@ -44,18 +69,18 @@ function watcherPropertyPrimitiveChange() {
 
     var nameProperty = $(property).find(".property-name").val();
 
-    $.each($(properties).find(".validation-depends-on"), function(index, validationDependsOnElement) {
-      var nameDependsOn = $(validationDependsOnElement).val();
+    $.each($(properties).find(".validation-depends-on"), function(index, validationDependsOn) {
+      var validationDependsWhen = $(validationDependsOn).parent().parent().find(".validation-depends-when");
+
+      clearSelect(validationDependsWhen);
+
+      var nameDependsOn = $(validationDependsOn).val();
 
       if (nameProperty !== nameDependsOn) {
         return;
       }
 
-      var validationDependsWhen = $(validationDependsOnElement).parent().parent().find(".validation-depends-when");
-
       var dependsWhen = getDependsWhen(primitive);
-
-      clearSelect(validationDependsWhen);
 
       $.each(dependsWhen, function(index, value) {
         $(validationDependsWhen).append(`<option value="${value}">${value}</option>`);
@@ -65,16 +90,16 @@ function watcherPropertyPrimitiveChange() {
 }
 
 function watcherValidationDependsOnChange() {
-  $(document).on("change", ".validation-depends-on", function(validationDependsOnElement) {
-    var entities = $(validationDependsOnElement.target).parent().parent().parent().parent().parent().parent();
+  $(document).on("change", ".validation-depends-on", function(validationDependsOn) {
+    var entities = $(validationDependsOn.target).parent().parent().parent().parent().parent().parent();
 
     var input = $(entities).find('input[class="property-name"]').filter(function() { 
-      return this.value == $(validationDependsOnElement.target).val()
+      return this.value == $(validationDependsOn.target).val()
     });
 
     var properties = $(input).parent().parent();
 
-    var row = $(validationDependsOnElement.target).parent().parent();
+    var row = $(validationDependsOn.target).parent().parent();
 
     var validationDependsWhen = $(row).find(".validation-depends-when");
 
