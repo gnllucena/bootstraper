@@ -3,6 +3,7 @@
 <script src="html/variables.js"></script>
 <script src="html/watchers.js"></script>
 <script src="html/manipulations.js"></script>
+<script src="html/json.js"></script>
 <link rel="stylesheet" href="html/grid.css">
 <link rel="stylesheet" href="html/index.css">
 <link rel="stylesheet" href="html/icons.css">
