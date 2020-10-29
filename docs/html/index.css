@@ -11,6 +11,12 @@ body {
   padding: 10px;
 }
 
+.content {
+  max-height: 550px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 .content-label {
   margin-top: 2rem;
   margin-bottom: 1rem;
