@@ -36,11 +36,27 @@ function watcherPropertyNameChange() {
     var values = getPropertyNameValues(entity);
 
     $.each($(entity).find(".validation-depends-on"), function(index, validationDependsOn) {
+      var oldValue = $(validationDependsOn).val();
+
+      var exists = false;
+
+      if ($.inArray($(validationDependsOn).val(), values) > -1) {
+        exists = true;
+      }
+
       clearSelect(validationDependsOn);
 
       $.each(values, function(index, value) {
         $(validationDependsOn).append(`<option value="${value}">${value}</option>`);
       });
+
+      if (exists) {
+        $(validationDependsOn).val(oldValue);
+      } else {
+        var validationDependsWhen = $(validationDependsOn).parent().parent().find(".validation-depends-when");
+
+        clearSelect(validationDependsWhen);
+      }
     });
   });
 }
@@ -77,7 +93,8 @@ function watcherPropertyPrimitiveChange() {
       var nameDependsOn = $(validationDependsOn).val();
 
       if (nameDependsOn !== nameProperty || 
-          nameDependsOn === "") {
+          nameDependsOn === "" ||
+          primitive === "") {
         return;
       }
 
