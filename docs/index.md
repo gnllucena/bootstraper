@@ -10,10 +10,10 @@
 
 <div class="bootstrap-wrapper">
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-8">
       <div class="content"></div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
       <textarea class="jsonarea"></textarea>
     </div>
   </div>
