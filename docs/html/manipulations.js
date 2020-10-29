@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  $(".content-wrapper").after(addEntity());
+  $(".content").append(addProject());
 });
 
 function addedNewEntity(element) {
@@ -30,6 +30,41 @@ function removedExistingEntity(element) {
 
 function removedExistingValidation(element) {
   $(element).parent().parent().remove();
+}
+
+function addProject(element) {
+  var row = `
+    <div class="content-wrapper">
+      <div class="content-header-wrapper">
+        <label class="content-label">Project</label>
+      </div>  
+      <div class="row" style="margin-bottom: -10px;">
+        <div class="content-input-wrapper col-md-4">
+          <label>Name</label>
+          <input name="project-name" class="project-name" />
+        </div>
+        
+        <div class="content-input-wrapper col-md-4">
+          <label>Database</label>
+          <select name="project-database" class="project-database"></select>
+        </div>
+
+        <div class="icon-space" onclick="addedNewEntity(this);">
+          <i class="icon gg-math-plus"></i>
+        </div>
+      </div>
+
+      <div class="content-project-entities"></div>
+    </div>
+  `;
+
+  var project = $(row);
+
+  var entities = $(project).find(".content-project-entities");
+
+  entities.append(addEntity(element));
+
+  return project;
 }
 
 function addEntity(element) {
