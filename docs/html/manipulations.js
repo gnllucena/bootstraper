@@ -46,7 +46,10 @@ function addProject(element) {
         
         <div class="content-input-wrapper col-md-4">
           <label>Database</label>
-          <select name="project-database" class="project-database"></select>
+          <select name="project-database" class="project-database">
+            <option></option>
+            replace_project_database_options
+          </select>
         </div>
 
         <div class="icon-space" onclick="addedNewEntity(this);">
@@ -58,6 +61,12 @@ function addProject(element) {
     </div>
   `;
 
+  var projectDatabaseOptions = $.map(PROJECT_DATABASE, function(value, index) {
+    return `<option value="${value}">${value}</option>`;
+  });
+
+  row = row.replace("replace_project_database_options", projectDatabaseOptions);
+  
   var project = $(row);
 
   var entities = $(project).find(".content-project-entities");
