@@ -51,7 +51,7 @@ function toJson() {
   });
 
   var project = new Object();
-  project.Name = $(".project-name").val();
+  project.Name = $(".project-name-input").val();
   project.Database = $(".project-database").val();
   project.Entities = entities;
 

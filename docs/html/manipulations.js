@@ -41,7 +41,7 @@ function addProject(element) {
       <div class="row" style="margin-bottom: -10px;">
         <div class="content-input-wrapper col-md-4">
           <label>Name</label>
-          <input name="project-name" class="project-name" />
+          <input name="project-name" class="project-name-input" />
         </div>
         
         <div class="content-input-wrapper col-md-4">
