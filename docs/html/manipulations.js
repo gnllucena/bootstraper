@@ -90,7 +90,7 @@ function addEntity(element) {
         
         <div class="content-input-wrapper col-md-4">
           <label>Table</label>
-          <input name="entity-name" class="entity-name" />    
+          <input name="entity-table" class="entity-table" />    
         </div>
 
         <div class="icon-space add-property" onclick="addedNewProperty(this);">
@@ -155,16 +155,16 @@ function addProperty(entityWrapper) {
           <select name="property-primarykey" class="property-primarykey">
             <option></option>
             <option value="true">Yes</option>
-            <option value="no">No</option>
+            <option value="false">No</option>
           </select>
         </div>
         
         <div class="content-input-wrapper col-md-3">
-          <label>Is Null</label>
+          <label>Is Nullable</label>
           <select name="property-nullable" class="property-nullable">
             <option></option>
             <option value="true">Yes</option>
-            <option value="no">No</option>
+            <option value="false">No</option>
           </select>
         </div>
 
@@ -173,7 +173,7 @@ function addProperty(entityWrapper) {
           <select name="property-unique" class="property-unique">
             <option></option>
             <option value="true">Yes</option>
-            <option value="no">No</option>
+            <option value="false">No</option>
           </select>
         </div>
       </div>
@@ -215,7 +215,7 @@ function addValidation(entityWrapper, propertyWrapper) {
         
         <div class="content-input-wrapper col-md-4">
           <label>Value</label>
-          <input name="validation-value" />    
+          <input name="validation-value" class="validation-value"/>
         </div>
         
         <div class="icon-space remove-validation" onclick="removedExistingValidation(this);">
