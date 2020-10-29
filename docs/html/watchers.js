@@ -76,7 +76,8 @@ function watcherPropertyPrimitiveChange() {
 
       var nameDependsOn = $(validationDependsOn).val();
 
-      if (nameProperty !== nameDependsOn) {
+      if (nameDependsOn !== nameProperty || 
+          nameDependsOn === "") {
         return;
       }
 
