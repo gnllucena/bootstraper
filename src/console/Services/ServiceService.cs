@@ -83,7 +83,7 @@ namespace Console.Services
             return new File()
             {
                 Content = sb.ToString(),
-                Path = $"Domain/Services/{entity.Name}Service.cs"
+                Path = $"Services/{entity.Name}Service.cs"
             };
         }
 

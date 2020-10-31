@@ -1,4 +1,4 @@
-﻿namespace console.Models
+﻿namespace Console.Models
 {
     public class Configuration
     {

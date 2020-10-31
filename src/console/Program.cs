@@ -1,5 +1,4 @@
-﻿using console.Models;
-using Console.Models;
+﻿using Console.Models;
 using Console.Services;
 using Console.Validators;
 using FluentValidation;
@@ -7,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -33,6 +33,7 @@ namespace Console
                 services.AddSingleton<IValidator<Validation>, ValidationValidator>();
                 services.AddSingleton<IValidator<PreAction>, PreActionValidator>();
 
+                services.AddTransient<IArgsService, ArgsService>();
                 services.AddTransient<IOrchestratorService, OrchestratorService>();
                 services.AddTransient<IClassService, ClassService>();
                 services.AddTransient<IRepositoryService, RepositoryService>();
@@ -41,6 +42,7 @@ namespace Console
                 services.AddTransient<IControllerService, ControllerService>();
                 services.AddTransient<IValidatorService, ValidatorService>();
                 services.AddTransient<IFileService, FileService>();
+                services.AddTransient<IValidationService, ValidationService>();
             })
             .UseSerilog()
             .Build();
@@ -56,12 +58,20 @@ namespace Console
             {
                 var host = BuildHost(args);
 
-                var orchestrator = host.Services.GetService<IOrchestratorService>();
+                var argsService = host.Services.GetService<IArgsService>();
+                var orchestratorService = host.Services.GetService<IOrchestratorService>();
 
-                await orchestrator.OrchestrateAsync(new Configuration() {
-                    File = "./appproject.json",
-                    Output = "/output/"
-                });
+                var configuration = argsService.GetArgs(args);
+
+                await orchestratorService.OrchestrateAsync(configuration);
+            }
+            catch (ArgumentException ex)
+            {
+                Log.Logger.Information(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex.Message);
             }
             finally
             {
