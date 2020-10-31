@@ -37,6 +37,7 @@ msbuild.log
 msbuild.err
 msbuild.wrn
 .sonarqube/
+nupkg/
 
 # Visual Studio 2015
 .vs/
