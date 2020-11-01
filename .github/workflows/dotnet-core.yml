@@ -24,4 +24,4 @@ jobs:
     - name: dotnet test
       run: cd ./src/Tests/ && dotnet test --no-restore --verbosity normal
     - name: dotnet pack
-      run: cd ./src/Bootstrapper/ && dotnet pack
+      run: cd ./src/Bootstrapper/ && dotnet pack --version-suffix $GITHUB_RUN_NUMBER
