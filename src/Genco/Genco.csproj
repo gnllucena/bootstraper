@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>genco</ToolCommandName>
+    <ToolCommandName>bootstrapper</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <RepositoryUrl>https://github.com/gnllucena/bootstrapper</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
