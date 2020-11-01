@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Events;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -50,9 +51,9 @@ namespace Console
         public static async Task Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
-               .Enrich.FromLogContext()
-               .ReadFrom.Configuration(Configuration)
-               .CreateLogger();
+                .MinimumLevel.Debug()
+                .WriteTo.Console(LogEventLevel.Debug)
+                .CreateLogger();
 
             try
             {
@@ -61,7 +62,15 @@ namespace Console
                 var argsService = host.Services.GetService<IArgsService>();
                 var orchestratorService = host.Services.GetService<IOrchestratorService>();
 
+#if (DEBUG)
+                var configuration = new Configuration()
+                {
+                    File = "appsettings.json",
+                    Output = "./output/"
+                };
+#else
                 var configuration = argsService.GetArgs(args);
+#endif
 
                 await orchestratorService.OrchestrateAsync(configuration);
             }
