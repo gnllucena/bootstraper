@@ -27,9 +27,9 @@ function toJson() {
       property.Name = $(propertyWrapper).find(".property-name").val();
       property.Column = $(propertyWrapper).find(".property-column").val();
       property.Primitive = $(propertyWrapper).find(".property-primitive").val();
-      property.IsPrimaryKey = $(propertyWrapper).find(".property-primarykey").val();
-      property.IsUnique = $(propertyWrapper).find(".property-nullable").val();
-      property.IsNullable = $(propertyWrapper).find(".property-unique").val();
+      property.IsPrimaryKey = $(propertyWrapper).find(".property-primarykey").val() === "true";
+      property.IsUnique = $(propertyWrapper).find(".property-nullable").val() === "true";
+      property.IsNullable = $(propertyWrapper).find(".property-unique").val() === "true";
       property.Validations = [];
 
       $.each($(propertyWrapper).find(".validation-wrapper"), function(index, validationWrapper) {
@@ -40,8 +40,13 @@ function toJson() {
         validation.Depends = new Object();
         validation.Depends.On = $(validationWrapper).find(".validation-depends-on").val();
         validation.Depends.When = $(validationWrapper).find(".validation-depends-when").val();
-
-        property.Validations.push(validation);
+        
+        if (validation.Type !== "" ||
+            validation.Value !== "" ||
+            validation.Depends.On !== "" ||
+            validation.Depends.When !== "") {
+          property.Validations.push(validation);
+        }
       });
 
       entity.Properties.push(property);

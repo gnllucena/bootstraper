@@ -121,9 +121,12 @@ namespace Console.Services
             sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is starting {{nameof({entity.Name}Service)}}.{{nameof(InsertAsync)}}\");");
             sb.AppendLine($"");
 
-            foreach (var preInsert in entity.PreInserts)
+            if (entity.PreInserts != null)
             {
-                sb.AppendLine($"            {nameCamelCaseEntity}.{preInsert.Property} = {preInsert.Set};");
+                foreach (var preInsert in entity.PreInserts)
+                {
+                    sb.AppendLine($"            {nameCamelCaseEntity}.{preInsert.Property} = {preInsert.Set};");
+                }
             }
             
             sb.AppendLine($"");
@@ -175,11 +178,14 @@ namespace Console.Services
             sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is starting {{nameof({entity.Name}Service)}}.{{nameof(UpdateAsync)}}\");");
             sb.AppendLine($"");
 
-            foreach (var preUpdate in entity.PreUpdates)
+            if (entity.PreUpdates != null)
             {
-                sb.AppendLine($"            {nameCamelCaseEntity}.{preUpdate.Property} = {preUpdate.Set};");
+                foreach (var preUpdate in entity.PreUpdates)
+                {
+                    sb.AppendLine($"            {nameCamelCaseEntity}.{preUpdate.Property} = {preUpdate.Set};");
+                }
             }
-
+            
             sb.AppendLine($"");
 
             if (uniqueProperties.Any())
