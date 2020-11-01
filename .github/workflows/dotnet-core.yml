@@ -24,6 +24,6 @@ jobs:
     - name: dotnet test
       run: cd ./src/Tests/ && dotnet test --no-restore --verbosity normal
     - name: dotnet pack
-      run: cd ./src/Genco/ && dotnet pack /property:Version=1.0.${GITHUB_RUN_NUMBER} -p:PackageID=genco
+      run: cd ./src/Genco/ && dotnet pack /property:Version=1.0.${GITHUB_RUN_NUMBER} -p:PackageID=genco -c Release
     - name: dotnet nuget push
       run: cd ./src/Genco/nupkg && dotnet nuget push genco.1.0.${GITHUB_RUN_NUMBER}.nupkg --api-key ${{ secrets.NUGET_ORG_API_KEY }} --source https://api.nuget.org/v3/index.json
