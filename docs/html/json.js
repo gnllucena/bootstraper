@@ -28,8 +28,8 @@ function toJson() {
       property.Column = $(propertyWrapper).find(".property-column").val();
       property.Primitive = $(propertyWrapper).find(".property-primitive").val();
       property.IsPrimaryKey = $(propertyWrapper).find(".property-primarykey").val() === "true";
-      property.IsUnique = $(propertyWrapper).find(".property-nullable").val() === "true";
-      property.IsNullable = $(propertyWrapper).find(".property-unique").val() === "true";
+      property.IsUnique = $(propertyWrapper).find(".property-unique").val() === "true";
+      property.IsNullable = $(propertyWrapper).find(".property-nullable").val() === "true";
       property.Validations = [];
 
       $.each($(propertyWrapper).find(".validation-wrapper"), function(index, validationWrapper) {
