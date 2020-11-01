@@ -17,9 +17,11 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.301
-    - name: Install dependencies
+    - name: dotnet restore
       run: cd ./src/ && dotnet restore
-    - name: Build
+    - name: dotnet build
       run: cd ./src/ && dotnet build --configuration Release --no-restore
-    - name: Test
+    - name: dotnet test
       run: cd ./src/Tests/ && dotnet test --no-restore --verbosity normal
+    - name: dotnet pack
+      run: cd ./src/Bootstrapper/ && dotnet pack

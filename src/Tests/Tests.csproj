@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\bootstrapper\Bootstrapper.csproj" />
+    <ProjectReference Include="..\Bootstrapper\Bootstrapper.csproj" />
   </ItemGroup>
 
 </Project>
