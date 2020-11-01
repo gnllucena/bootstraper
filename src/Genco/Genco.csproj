@@ -4,8 +4,11 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>genco</ToolCommandName>
+    <ToolCommandName>bootstrapper</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
+    <RepositoryUrl>https://gnllucena.github.io/bootstrapper/</RepositoryUrl>
+    <Authors>Gabriel Lucena</Authors>
+    <PackageDescription>A code generator based on a json pattern</PackageDescription>
   </PropertyGroup>
 
   <ItemGroup>
