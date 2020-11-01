@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bootstrapper\Bootstrapper.csproj" />
+    <ProjectReference Include="..\Genco\Genco.csproj" />
   </ItemGroup>
 
 </Project>

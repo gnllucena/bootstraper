@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bootstrapper", "Bootstrapper\Bootstrapper.csproj", "{36C0CD5D-514D-473E-9D5B-1B4A2D8ACE91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Genco", "Genco\Genco.csproj", "{36C0CD5D-514D-473E-9D5B-1B4A2D8ACE91}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{2F5649CC-C19B-4D34-B35E-F2DF4D14640C}"
 EndProject
