@@ -24,6 +24,6 @@ jobs:
     - name: dotnet test
       run: cd ./src/Tests/ && dotnet test --no-restore --verbosity normal
     - name: dotnet pack
-      run: cd ./src/Bootstrapper/ && dotnet pack /property:Version=1.0.$GITHUB_RUN_NUMBER
+      run: cd ./src/Bootstrapper/ && dotnet pack /property:Version=1.0.${{ GITHUB_RUN_NUMBER }}
     - name: dotnet nuget push
-      run: cd ./src/Bootstrapper/nupkg && dotnet nuget push Bootstrapper.1.0.$GITHUB_RUN_NUMBER.nupkg --api-key ${{ secrets.NUGET_ORG_API_KEY }} --source https://api.nuget.org/v3/index.json
+      run: cd ./src/Bootstrapper/nupkg && dotnet nuget push Bootstrapper.1.0.${{ GITHUB_RUN_NUMBER }} --api-key ${{ secrets.NUGET_ORG_API_KEY }} --source https://api.nuget.org/v3/index.json
