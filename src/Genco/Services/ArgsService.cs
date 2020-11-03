@@ -69,11 +69,11 @@ namespace Console.Services
                 {
                     var sb = new StringBuilder();
                     sb.AppendLine("");
-                    sb.AppendLine("These are the Bootstrapper commands:");
-                    sb.AppendLine("\t-f\t\tfile\t\t\tYour project configuration file");
+                    sb.AppendLine("These are the Genco commands:");
+                    sb.AppendLine("\t-f\t\tfile\t\t\tYour project configuration json file");
                     sb.AppendLine("\t-o\t\toutput\t\t\tOutput folder where your project files will be created");
                     sb.AppendLine("");
-                    sb.AppendLine("Go to https://gnllucena.github.io/bootstrapper/ for more information.");
+                    sb.AppendLine("Go to https://gnllucena.github.io/genco/ for more information.");
 
                     throw new ArgumentException(sb.ToString());
                 }

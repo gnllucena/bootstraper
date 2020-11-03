@@ -30,7 +30,6 @@ namespace Console.Services
 
             var sb = new StringBuilder();
 
-            // TODO: deixar readonly as variavies
             sb.AppendLine($"using {project.Name}.Domain.Models;");
             sb.AppendLine($"");
             sb.AppendLine($"namespace {project.Name}.Domain.Queries");

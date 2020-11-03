@@ -80,7 +80,7 @@ namespace Console.Services
                 files.AddRange(_repositoryService.Generate(project));
                 files.AddRange(_validatorService.Generate(project));
                 files.AddRange(_serviceService.Generate(project));
-                //files.AddRange(await _controllerService.GenerateAsync(project));
+                files.AddRange(_controllerService.Generate(project));
             }
             catch (Exception ex)
             {
