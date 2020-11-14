@@ -30,6 +30,11 @@ namespace Console
         public const string DEPENDS_NOTEMPTY = "notempty";
         public const string DEPENDS_EQUALTOZERO = "equaltozero";
 
+        public static readonly List<string> PROJECT_TYPE = new List<string>
+        {
+            "API"
+        };
+
         public static readonly List<string> PROJECT_DATABASE = new List<string>
         {
             "Mysql"

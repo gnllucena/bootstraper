@@ -6,12 +6,12 @@ using System.Text;
 
 namespace Console.Services
 {
-    public interface IValidatorService
+    public interface IFileValidatorService
     {
         IList<File> Generate(Project project);
     }
 
-    public class ValidatorService : IValidatorService
+    public class FileValidatorService : IFileValidatorService
     {
         public IList<File> Generate(Project project)
         {
@@ -32,13 +32,13 @@ namespace Console.Services
             
             var sb = new StringBuilder();
 
-            sb.AppendLine($"using API.Identity.Domain.Models;");
+            sb.AppendLine($"using {project.Name}.Domain.Entities;");
             sb.AppendLine($"using FluentValidation;");
             sb.AppendLine($"using FluentValidation.Results;");
             sb.AppendLine($"using System;");
             sb.AppendLine($"using System.Collections.Generic;");
             sb.AppendLine($"");
-            sb.AppendLine($"namespace {project.Name}.Domain.Validators");
+            sb.AppendLine($"namespace {project.Name}.Validators");
             sb.AppendLine($"{{");
             sb.AppendLine($"    public class {entity.Name}Validator : AbstractValidator<{entity.Name}>");
             sb.AppendLine($"    {{");
@@ -62,7 +62,7 @@ namespace Console.Services
             return new File()
             {
                 Content = sb.ToString(),
-                Path = $"Domain/Validators/{entity.Name}Validator.cs"
+                Path = $"Common/Validators/{entity.Name}Validator.cs"
             };
         }
 

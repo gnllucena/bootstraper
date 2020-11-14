@@ -5,12 +5,12 @@ using System.Text;
 
 namespace Console.Services
 {
-    public interface IClassService
+    public interface IFileClassService
     {
         IList<File> Generate(Project project);
     }
 
-    public class ClassService : IClassService
+    public class FileClassService : IFileClassService
     {
         public IList<File> Generate(Project project)
         {
@@ -30,7 +30,7 @@ namespace Console.Services
 
             sb.AppendLine($"using System;");
             sb.AppendLine($"");
-            sb.AppendLine($"namespace {project.Name}.Domain.Models");
+            sb.AppendLine($"namespace {project.Name}.Domain.Entities");
             sb.AppendLine($"{{");
             sb.AppendLine($"    public class {entity.Name}");
             sb.AppendLine($"    {{");
@@ -42,7 +42,7 @@ namespace Console.Services
             return new File()
             {
                 Content = sb.ToString(),
-                Path = $"Domain/Models/{entity.Name}.cs"
+                Path = $"Common/Domain/Entities/{entity.Name}.cs"
             };
         }
 

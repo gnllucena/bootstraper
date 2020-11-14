@@ -5,12 +5,12 @@ using System.Text;
 
 namespace Console.Services
 {
-    public interface IRepositoryService
+    public interface IFileRepositoryService
     {
         IList<File> Generate(Project project);
     }
 
-    public class RepositoryService : IRepositoryService
+    public class FileRepositoryService : IFileRepositoryService
     {
         public IList<File> Generate(Project project)
         {
@@ -30,17 +30,19 @@ namespace Console.Services
             
             var sb = new StringBuilder();
 
+            
+            sb.AppendLine($"using {project.Name}.Domain.Entities;");
+            sb.AppendLine($"using {project.Name}.Domain.Models.Responses;");
+            sb.AppendLine($"using {project.Name}.Queries;");
+            sb.AppendLine($"using {project.Name}.Services;");
             sb.AppendLine($"using Dapper;");
             sb.AppendLine($"using Microsoft.Extensions.Logging;");
-            sb.AppendLine($"using {project.Name}.Domain.Models;");
-            sb.AppendLine($"using {project.Name}.Domain.Queries;");
-            sb.AppendLine($"using {project.Name}.Services;");
             sb.AppendLine($"using System;");
             sb.AppendLine($"using System.Data;");
             sb.AppendLine($"using System.Linq;");
             sb.AppendLine($"using System.Threading.Tasks;");
             sb.AppendLine($"");
-            sb.AppendLine($"namespace {project.Name}.Domain.Repositories");
+            sb.AppendLine($"namespace {project.Name}.Repositories");
             sb.AppendLine($"{{");
             sb.Append(GenerateInterfaceMethod(entity, primaryKey));
             sb.AppendLine($"");
@@ -53,8 +55,7 @@ namespace Console.Services
             sb.AppendLine($"        public {entity.Name}Repository(");
             sb.AppendLine($"            ILogger<{entity.Name}Repository> logger,");
             sb.AppendLine($"            ISqlService sqlService,");
-            sb.AppendLine($"            IAuthenticatedService authenticatedService");
-            sb.AppendLine($"        )");
+            sb.AppendLine($"            IAuthenticatedService authenticatedService)");
             sb.AppendLine($"        {{");
             sb.AppendLine($"            _logger = logger ?? throw new ArgumentNullException(nameof(logger));");
             sb.AppendLine($"            _sqlService = sqlService ?? throw new ArgumentNullException(nameof(sqlService));");
@@ -66,7 +67,7 @@ namespace Console.Services
             sb.AppendLine(GenerateDeleteMethod(entity, primaryKey));
             sb.AppendLine(GenerateGetMethod(entity, primaryKey));
             sb.AppendLine(GeneratePaginationMethod(entity));
-            sb.AppendLine(GenerateExistsByPropertyMethod(entity));
+            sb.Append(GenerateExistsByPropertyMethod(entity));
             sb.Append(GenerateExistsByPropertyAndDifferentPrimaryKeyMethod(entity, primaryKey));
             sb.AppendLine($"    }}");
             sb.AppendLine($"}}");
@@ -74,7 +75,7 @@ namespace Console.Services
             return new File()
             {
                 Content = sb.ToString(),
-                Path = $"Domain/Repositories/{entity.Name}Repository.cs"
+                Path = $"Common/Repositories/{entity.Name}Repository.cs"
             };
         }
 

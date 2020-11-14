@@ -12,6 +12,10 @@ namespace Console.Validators
                 .NotEmpty()
                 .WithMessage(x => $"Project's \"name\" must be informed");
 
+            RuleFor(x => x.Name)
+                .NotEmpty()
+                .WithMessage(x => $"Project's \"type\" must be informed");
+
             RuleFor(x => x.Database)
                 .NotEmpty()
                 .WithMessage(x => $"Project's \"database\" must be informed for \"{x.Name}\" project");

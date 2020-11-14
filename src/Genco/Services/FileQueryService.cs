@@ -5,12 +5,12 @@ using System.Text;
 
 namespace Console.Services
 {
-    public interface IQueryService
+    public interface IFileQueryService
     {
         IList<File> Generate(Project project);
     }
 
-    public class QueryService : IQueryService
+    public class FileQueryService : IFileQueryService
     {
         public IList<File> Generate(Project project)
         {
@@ -30,9 +30,9 @@ namespace Console.Services
 
             var sb = new StringBuilder();
 
-            sb.AppendLine($"using {project.Name}.Domain.Models;");
+            sb.AppendLine($"using {project.Name}.Domain.Entities;");
             sb.AppendLine($"");
-            sb.AppendLine($"namespace {project.Name}.Domain.Queries");
+            sb.AppendLine($"namespace {project.Name}.Queries");
             sb.AppendLine($"{{");
             sb.AppendLine($"    public class {entity.Name}Query");
             sb.AppendLine($"    {{");
@@ -52,7 +52,7 @@ namespace Console.Services
             return new File()
             {
                 Content = sb.ToString(),
-                Path = $"Domain/Queries/{entity.Name}Query.cs"
+                Path = $"Common/Queries/{entity.Name}Query.cs"
             };
         }
 

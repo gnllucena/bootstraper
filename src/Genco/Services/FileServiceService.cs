@@ -1,17 +1,16 @@
 ﻿using Console.Models;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 
 namespace Console.Services
 {
-    public interface IServiceService
+    public interface IFileServiceService
     {
         IList<File> Generate(Project project);
     }
 
-    public class ServiceService : IServiceService
+    public class FileServiceService : IFileServiceService
     {
         public IList<File> Generate(Project project)
         {
@@ -32,8 +31,9 @@ namespace Console.Services
 
             var sb = new StringBuilder();
 
-            sb.AppendLine($"using {project.Name}.Domain.Models;");
-            sb.AppendLine($"using {project.Name}.Domain.Repositories;");
+            sb.AppendLine($"using {project.Name}.Domain.Entities;");
+            sb.AppendLine($"using {project.Name}.Domain.Models.Responses;");
+            sb.AppendLine($"using {project.Name}.Repositories;");
             sb.AppendLine($"using FluentValidation;");
             sb.AppendLine($"using Microsoft.Extensions.Logging;");
             sb.AppendLine($"using System;");
@@ -49,21 +49,20 @@ namespace Console.Services
             sb.AppendLine($"        private readonly ILogger<{entity.Name}Service> _logger;");
             sb.AppendLine($"        private readonly IAuthenticatedService _authenticatedService;");
             sb.AppendLine($"        private readonly IValidator<{entity.Name}> _{nameCamelCaseEntity}Validator;");
-            sb.AppendLine($"        private readonly IValidatorService _validatorService;");
+            sb.AppendLine($"        private readonly IValidationService _validationService;");
             sb.AppendLine($"        private readonly I{entity.Name}Repository _{nameCamelCaseEntity}Repository;");
             sb.AppendLine($"");
             sb.AppendLine($"        public {entity.Name}Service(");
             sb.AppendLine($"            ILogger<{entity.Name}Service> logger,");
             sb.AppendLine($"            IAuthenticatedService authenticatedService,");
             sb.AppendLine($"            IValidator<{entity.Name}> {nameCamelCaseEntity}Validator,");
-            sb.AppendLine($"            IValidatorService validatorService,");
-            sb.AppendLine($"            I{entity.Name}Repository {nameCamelCaseEntity}Repository");
-            sb.AppendLine($"        )");
+            sb.AppendLine($"            IValidationService validationService,");
+            sb.AppendLine($"            I{entity.Name}Repository {nameCamelCaseEntity}Repository)");
             sb.AppendLine($"        {{");
             sb.AppendLine($"            _logger = logger ?? throw new ArgumentNullException(nameof(logger));");
             sb.AppendLine($"            _authenticatedService = authenticatedService ?? throw new ArgumentNullException(nameof(authenticatedService));");
             sb.AppendLine($"            _{nameCamelCaseEntity}Validator = {nameCamelCaseEntity}Validator ?? throw new ArgumentNullException(nameof({nameCamelCaseEntity}Validator));");
-            sb.AppendLine($"            _validatorService = validatorService ?? throw new ArgumentNullException(nameof(validatorService));");
+            sb.AppendLine($"            _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));");
             sb.AppendLine($"            _{nameCamelCaseEntity}Repository = {nameCamelCaseEntity}Repository ?? throw new ArgumentNullException(nameof({nameCamelCaseEntity}Repository));");
             sb.AppendLine($"        }}");
             sb.AppendLine($"");
@@ -83,7 +82,7 @@ namespace Console.Services
             return new File()
             {
                 Content = sb.ToString(),
-                Path = $"Services/{entity.Name}Service.cs"
+                Path = $"Common/Services/{entity.Name}Service.cs"
             };
         }
 
@@ -134,7 +133,7 @@ namespace Console.Services
 
             if (uniqueProperties.Any())
             {
-                sb.AppendLine($"            _validatorService.Validate(_{nameCamelCaseEntity}Validator.Validate({nameCamelCaseEntity}), new List<(bool, string)>");
+                sb.AppendLine($"            _validationService.Validate(_{nameCamelCaseEntity}Validator.Validate({nameCamelCaseEntity}), new List<(bool, string)>");
                 sb.AppendLine($"            {{ ");
 
                 for (var i = 0; i <= uniqueProperties.Count() - 1; i++)
@@ -149,7 +148,7 @@ namespace Console.Services
             }
             else
             {
-                sb.AppendLine($"            _validatorService.Validate(_{nameCamelCaseEntity}Validator.Validate({nameCamelCaseEntity}));");
+                sb.AppendLine($"            _validationService.Validate(_{nameCamelCaseEntity}Validator.Validate({nameCamelCaseEntity}));");
             }
 
             sb.AppendLine($"");
@@ -192,7 +191,7 @@ namespace Console.Services
 
             if (uniqueProperties.Any())
             {
-                sb.AppendLine($"            _validatorService.Validate(_{nameCamelCaseEntity}Validator.Validate({nameCamelCaseEntity}), new List<(bool, string)>");
+                sb.AppendLine($"            _validationService.Validate(_{nameCamelCaseEntity}Validator.Validate({nameCamelCaseEntity}), new List<(bool, string)>");
                 sb.AppendLine($"            {{ ");
 
                 for (var i = 0; i <= uniqueProperties.Count() - 1; i++)
@@ -211,7 +210,7 @@ namespace Console.Services
             }
             else
             {
-                sb.AppendLine($"            _validatorService.Validate(_{nameCamelCaseEntity}Validator.Validate({nameCamelCaseEntity}));");
+                sb.AppendLine($"            _validationService.Validate(_{nameCamelCaseEntity}Validator.Validate({nameCamelCaseEntity}));");
             }
 
             

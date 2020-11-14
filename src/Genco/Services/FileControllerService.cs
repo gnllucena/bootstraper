@@ -5,12 +5,12 @@ using System.Text;
 
 namespace Console.Services
 {
-    public interface IControllerService
+    public interface IFileControllerService
     {
         IList<File> Generate(Project project);
     }
 
-    public class ControllerService : IControllerService
+    public class FileControllerService : IFileControllerService
     {
         public IList<File> Generate(Project project)
         {
@@ -31,15 +31,17 @@ namespace Console.Services
 
             var sb = new StringBuilder();
 
-            sb.AppendLine($"using {project.Name}.Domains.Models;");
+            sb.AppendLine($"using {project.Name}.Domain.Entities;");
+            sb.AppendLine($"using {project.Name}.Domain.Models.Responses;");
             sb.AppendLine($"using {project.Name}.Services;");
-            sb.AppendLine($"using Microsoft.AspNetCore.Authorization;");
             sb.AppendLine($"using Microsoft.AspNetCore.Mvc;");
             sb.AppendLine($"using Microsoft.AspNetCore.Mvc.ModelBinding;");
+            sb.AppendLine($"using Microsoft.Extensions.Logging;");
             sb.AppendLine($"using Swashbuckle.AspNetCore.Annotations;");
+            sb.AppendLine($"using System;");
             sb.AppendLine($"using System.Threading.Tasks;");
             sb.AppendLine($"");
-            sb.AppendLine($"namespace {project.Name}.Controllers");
+            sb.AppendLine($"namespace API.Controllers");
             sb.AppendLine($"{{");
             sb.AppendLine($"    [ApiController]");
             sb.AppendLine($"    [Route(\"/{entity.Name.ToLower()}\")]");
@@ -78,15 +80,14 @@ namespace Console.Services
 
             var sb = new StringBuilder();
 
-            sb.AppendLine($"        [HttpPost(\"/{entity.Name.ToLower()}\")]");
+            sb.AppendLine($"        [HttpPost]");
             sb.AppendLine($"        [SwaggerOperation(");
             sb.AppendLine($"           Summary = \"Create a new {entity.Name}\",");
             sb.AppendLine($"           Description = \"Create a new {entity.Name}\"");
             sb.AppendLine($"        )]");
             sb.AppendLine($"        [SwaggerResponse(201, \"{entity.Name} created\", typeof({entity.Name}))]");
             sb.AppendLine($"        public async Task<ActionResult> Post(");
-            sb.AppendLine($"            [SwaggerParameter(\"The new {entity.Name}\")][FromBody] {entity.Name} {nameCamelCaseEntity}");
-            sb.AppendLine($"        )");
+            sb.AppendLine($"            [SwaggerParameter(\"The new {entity.Name}\")][FromBody] {entity.Name} {nameCamelCaseEntity})");
             sb.AppendLine($"        {{");
             sb.AppendLine($"            var result = await _{nameCamelCaseEntity}Service.InsertAsync({nameCamelCaseEntity});");
             sb.AppendLine($"");
@@ -104,7 +105,7 @@ namespace Console.Services
 
             var sb = new StringBuilder();
 
-            sb.AppendLine($"        [HttpPut(\"/{entity.Name.ToLower()}/{{{nameCamelCasePrimaryKey}}}\")]");
+            sb.AppendLine($"        [HttpPut(\"{{{nameCamelCasePrimaryKey}}}\")]");
             sb.AppendLine($"        [SwaggerOperation");
             sb.AppendLine($"        (");
             sb.AppendLine($"          Summary = \"Update {entity.Name} information\",");
@@ -113,8 +114,7 @@ namespace Console.Services
             sb.AppendLine($"        [SwaggerResponse(200, \"{entity.Name} updated\", typeof({entity.Name}))]");
             sb.AppendLine($"        public async Task<ActionResult> Put(");
             sb.AppendLine($"            [SwaggerParameter(\"The {entity.Name} {primaryKey.Name}\")][BindRequired] {primitive} {nameCamelCasePrimaryKey},");
-            sb.AppendLine($"            [SwaggerParameter(\"The {entity.Name} to be updated\")][FromBody] {entity.Name} {nameCamelCaseEntity}");
-            sb.AppendLine($"        )");
+            sb.AppendLine($"            [SwaggerParameter(\"The {entity.Name} to be updated\")][FromBody] {entity.Name} {nameCamelCaseEntity})");
             sb.AppendLine($"        {{");
             sb.AppendLine($"            var result = await _{nameCamelCaseEntity}Service.UpdateAsync({nameCamelCasePrimaryKey}, {nameCamelCaseEntity});");
             sb.AppendLine($"");
@@ -132,7 +132,7 @@ namespace Console.Services
 
             var sb = new StringBuilder();
 
-            sb.AppendLine($"        [HttpDelete(\"/{entity.Name.ToLower()}/{{{nameCamelCasePrimaryKey}}}\")]");
+            sb.AppendLine($"        [HttpDelete(\"{{{nameCamelCasePrimaryKey}}}\")]");
             sb.AppendLine($"        [SwaggerOperation");
             sb.AppendLine($"        (");
             sb.AppendLine($"           Summary = \"Delete {entity.Name}\",");
@@ -140,8 +140,7 @@ namespace Console.Services
             sb.AppendLine($"        )]");
             sb.AppendLine($"        [SwaggerResponse(204, \"{entity.Name} deleted\")]");
             sb.AppendLine($"        public async Task<ActionResult> Delete(");
-            sb.AppendLine($"            [SwaggerParameter(\"The {entity.Name} {primaryKey.Name}\")][BindRequired] {primitive} {nameCamelCasePrimaryKey}");
-            sb.AppendLine($"        )");
+            sb.AppendLine($"            [SwaggerParameter(\"The {entity.Name} {primaryKey.Name}\")][BindRequired] {primitive} {nameCamelCasePrimaryKey})");
             sb.AppendLine($"        {{");
             sb.AppendLine($"            await _{nameCamelCaseEntity}Service.DeleteAsync({nameCamelCasePrimaryKey});");
             sb.AppendLine($"");
@@ -159,7 +158,7 @@ namespace Console.Services
 
             var sb = new StringBuilder();
 
-            sb.AppendLine($"        [HttpGet(\"/{entity.Name}/{{{nameCamelCasePrimaryKey}}}\")]");
+            sb.AppendLine($"        [HttpGet(\"{{{nameCamelCasePrimaryKey}}}\")]");
             sb.AppendLine($"        [SwaggerOperation");
             sb.AppendLine($"        (");
             sb.AppendLine($"           Summary = \"Get a single {entity.Name}\",");
@@ -167,8 +166,7 @@ namespace Console.Services
             sb.AppendLine($"        )]");
             sb.AppendLine($"        [SwaggerResponse(200, \"Got {entity.Name}\", typeof({entity.Name}))]");
             sb.AppendLine($"        public async Task<ActionResult> Get(");
-            sb.AppendLine($"            [SwaggerParameter(\"The {entity.Name} {primaryKey.Name}\")][BindRequired] {primitive} {nameCamelCasePrimaryKey}");
-            sb.AppendLine($"        )");
+            sb.AppendLine($"            [SwaggerParameter(\"The {entity.Name} {primaryKey.Name}\")][BindRequired] {primitive} {nameCamelCasePrimaryKey})");
             sb.AppendLine($"        {{");
             sb.AppendLine($"            var result = await _{nameCamelCaseEntity}Service.GetAsync({nameCamelCasePrimaryKey});");
             sb.AppendLine($"");
@@ -200,11 +198,12 @@ namespace Console.Services
                 var property = entity.Properties[i];
 
                 var comma = i == entity.Properties.Count - 1 ? "" : ",";
+                var parentheses = i == entity.Properties.Count - 1 ? ")" : "";
 
                 if (property.Primitive.ToLower() == Constants.PRIMITIVE_DATETIME)
                 {
                     sb.AppendLine($"            [SwaggerParameter(\"The {entity.Name}'s {property.Name} start date\")] DateTime? from{property.Name}{comma}");
-                    sb.AppendLine($"            [SwaggerParameter(\"The {entity.Name}'s {property.Name} end date\")] DateTime? to{property.Name}{comma}");
+                    sb.AppendLine($"            [SwaggerParameter(\"The {entity.Name}'s {property.Name} end date\")] DateTime? to{property.Name}{comma}{parentheses}");
                 }
                 else
                 {
@@ -217,10 +216,10 @@ namespace Console.Services
                         nullable = "";
                     }
 
-                    sb.AppendLine($"            [SwaggerParameter(\"The {entity.Name}'s {property.Name}\")] {primitive}{nullable} {nameCamelCaseProperty}{comma}");
+                    sb.AppendLine($"            [SwaggerParameter(\"The {entity.Name}'s {property.Name}\")] {primitive}{nullable} {nameCamelCaseProperty}{comma}{parentheses}");
                 }
             }
-            sb.AppendLine($"        )");
+
             sb.AppendLine($"        {{");
             sb.AppendLine($"            var result = await _{nameCamelCaseEntity}Service.PaginateAsync(offset, limit, {parameters});");
             sb.AppendLine($"");

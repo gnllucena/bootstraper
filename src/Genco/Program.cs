@@ -36,12 +36,12 @@ namespace Console
 
                 services.AddTransient<IArgsService, ArgsService>();
                 services.AddTransient<IOrchestratorService, OrchestratorService>();
-                services.AddTransient<IClassService, ClassService>();
-                services.AddTransient<IRepositoryService, RepositoryService>();
-                services.AddTransient<IQueryService, QueryService>();
-                services.AddTransient<IServiceService, ServiceService>();
-                services.AddTransient<IControllerService, ControllerService>();
-                services.AddTransient<IValidatorService, ValidatorService>();
+                services.AddTransient<IFileClassService, FileClassService>();
+                services.AddTransient<IFileRepositoryService, FileRepositoryService>();
+                services.AddTransient<IFileQueryService, FileQueryService>();
+                services.AddTransient<IFileServiceService, FileServiceService>();
+                services.AddTransient<IFileControllerService, FileControllerService>();
+                services.AddTransient<IFileValidatorService, FileValidatorService>();
                 services.AddTransient<IFileService, FileService>();
                 services.AddTransient<IValidationService, ValidationService>();
             })

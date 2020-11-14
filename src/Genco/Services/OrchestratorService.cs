@@ -16,23 +16,23 @@ namespace Console.Services
     {
         private readonly ILogger<OrchestratorService> _logger;
         private readonly IValidationService _validationService;
-        private readonly IClassService _classService;
-        private readonly IQueryService _queryService;
-        private readonly IRepositoryService _repositoryService;
-        private readonly IServiceService _serviceService;
-        private readonly IValidatorService _validatorService;
-        private readonly IControllerService _controllerService;
+        private readonly IFileClassService _classService;
+        private readonly IFileQueryService _queryService;
+        private readonly IFileRepositoryService _repositoryService;
+        private readonly IFileServiceService _serviceService;
+        private readonly IFileValidatorService _validatorService;
+        private readonly IFileControllerService _controllerService;
         private readonly IFileService _fileService;
 
         public OrchestratorService(
             ILogger<OrchestratorService> logger,
             IValidationService validationService,
-            IClassService classService,
-            IQueryService queryService,
-            IRepositoryService repositoryService,
-            IServiceService serviceService,
-            IValidatorService validatorService,
-            IControllerService controllerService,
+            IFileClassService classService,
+            IFileQueryService queryService,
+            IFileRepositoryService repositoryService,
+            IFileServiceService serviceService,
+            IFileValidatorService validatorService,
+            IFileControllerService controllerService,
             IFileService fileService
         )
         {
