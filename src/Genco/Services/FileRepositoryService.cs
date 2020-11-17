@@ -1,4 +1,5 @@
 ﻿using Console.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -62,7 +63,7 @@ namespace Console.Services
             sb.AppendLine($"            _authenticatedService = authenticatedService ?? throw new ArgumentNullException(nameof(authenticatedService));");
             sb.AppendLine($"        }}");
             sb.AppendLine($"");
-            sb.AppendLine(GenerateInsertMethod(entity, primaryKey));
+            sb.AppendLine(GenerateInsertMethod(project, entity, primaryKey));
             sb.AppendLine(GenerateUpdateMethod(entity, primaryKey));
             sb.AppendLine(GenerateDeleteMethod(entity, primaryKey));
             sb.AppendLine(GenerateGetMethod(entity, primaryKey));
@@ -120,19 +121,30 @@ namespace Console.Services
             return sb.ToString();
         }
 
-        public string GenerateInsertMethod(Entity entity, Property primaryKey)
+        public string GenerateInsertMethod(Project project, Entity entity, Property primaryKey)
         {
             var entityCamelCase = Functions.GetCamelCaseValue(entity.Name);
+            var nameCamelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
             var primitivePrimaryKey = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, primaryKey.Primitive);
 
             var sb = new StringBuilder();
 
             sb.AppendLine($"        public async Task<{primitivePrimaryKey}> InsertAsync({entity.Name} {entityCamelCase})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is inserting a new {entity.Name} - {{{entityCamelCase}.ToString()}}\");");
+            sb.AppendLine($"            _logger.LogDebug($\"User {{_authenticatedService.GetUserKey()}} is inserting a new {entity.Name} - {{{entityCamelCase}}}\");");
             sb.AppendLine($"");
             sb.AppendLine($"            var parameters = new DynamicParameters();");
-            sb.AppendLine($"            parameters.Add(\"{primaryKey.Column}\", {entityCamelCase}.{primaryKey.Name}, direction: ParameterDirection.Output);");
+
+            switch (project.Database.ToLower())
+            {
+                case Constants.DATABASE_MYSQL:
+                    break;
+                case Constants.DATABASE_ORACLE:
+                    sb.AppendLine($"            parameters.Add(\"{primaryKey.Column}\", {entityCamelCase}.{primaryKey.Name}, direction: ParameterDirection.Output);");
+                    break;
+                default:
+                    throw new InvalidOperationException($"Database \"{project.Database}\" not implemented");
+            }
 
             foreach (var property in entity.Properties)
             {
@@ -143,11 +155,11 @@ namespace Console.Services
             }
             
             sb.AppendLine($"");
-            sb.AppendLine($"            var result = await _sqlService.ExecuteScalarAsync<{primitivePrimaryKey}>({entity.Name}Query.INSERT, CommandType.Text, parameters);");
+            sb.AppendLine($"            var {nameCamelCasePrimaryKey} = await _sqlService.ExecuteScalarAsync<{primitivePrimaryKey}>({entity.Name}Query.INSERT, CommandType.Text, parameters);");
             sb.AppendLine($"");
-            sb.AppendLine($"            _logger.LogDebug($\"{entity.Name} {{result}} inserted\");");
+            sb.AppendLine($"            _logger.LogDebug($\"{entity.Name} {{{nameCamelCasePrimaryKey}}} inserted\");");
             sb.AppendLine($"");
-            sb.AppendLine($"            return result;");
+            sb.AppendLine($"            return {nameCamelCasePrimaryKey};");
             sb.AppendLine($"        }}");
 
             return sb.ToString();
@@ -163,7 +175,7 @@ namespace Console.Services
 
             sb.AppendLine($"        public async Task UpdateAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey}, {entity.Name} {entityCamelCase})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is updating {entity.Name} {{{nameCamelCasePrimaryKey}}} - {{{entityCamelCase}.ToString()}}\");");
+            sb.AppendLine($"            _logger.LogDebug($\"User {{_authenticatedService.GetUserKey()}} is updating {entity.Name} {{{nameCamelCasePrimaryKey}}} - {{{entityCamelCase}}}\");");
             sb.AppendLine($"");
             sb.AppendLine($"            await _sqlService.ExecuteAsync({entity.Name}Query.UPDATE, CommandType.Text, new");
             sb.AppendLine($"            {{");
@@ -200,7 +212,7 @@ namespace Console.Services
 
             sb.AppendLine($"        public async Task DeleteAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is deleting {entity.Name} {{{nameCamelCasePrimaryKey}}}\");");
+            sb.AppendLine($"            _logger.LogDebug($\"User {{_authenticatedService.GetUserKey()}} is deleting {entity.Name} {{{nameCamelCasePrimaryKey}}}\");");
             sb.AppendLine($"");
             sb.AppendLine($"            await _sqlService.ExecuteAsync({entity.Name}Query.DELETE, CommandType.Text, new");
             sb.AppendLine($"            {{");
@@ -215,6 +227,7 @@ namespace Console.Services
 
         public string GenerateGetMethod(Entity entity, Property primaryKey)
         {
+            var nameCamelCaseEntity = Functions.GetCamelCaseValue(entity.Name);
             var nameCamelCasePrimaryKey = Functions.GetCamelCaseValue(primaryKey.Name);
             var primitivePrimaryKey = Functions.GetConstantValue(Constants.PROPERTY_PRIMITIVES, primaryKey.Primitive);
 
@@ -222,16 +235,16 @@ namespace Console.Services
 
             sb.AppendLine($"        public async Task<{entity.Name}> GetAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is getting {entity.Name} {{{nameCamelCasePrimaryKey}}}\");");
+            sb.AppendLine($"            _logger.LogDebug($\"User {{_authenticatedService.GetUserKey()}} is getting {entity.Name} {{{nameCamelCasePrimaryKey}}}\");");
             sb.AppendLine($"");
-            sb.AppendLine($"            var result = await _sqlService.QueryFirstOrDefaultAsync<{entity.Name}>({entity.Name}Query.GET, CommandType.Text, new");
+            sb.AppendLine($"            var {nameCamelCaseEntity} = await _sqlService.QueryFirstOrDefaultAsync<{entity.Name}>({entity.Name}Query.GET, CommandType.Text, new");
             sb.AppendLine($"            {{");
             sb.AppendLine($"                {primaryKey.Column} = {nameCamelCasePrimaryKey}");
             sb.AppendLine($"            }});");
             sb.AppendLine($"");
-            sb.AppendLine($"            _logger.LogDebug($\"Got {entity.Name} {{{nameCamelCasePrimaryKey}}} - {{result.ToString()}}\");");
+            sb.AppendLine($"            _logger.LogDebug($\"Got {entity.Name} {{{nameCamelCasePrimaryKey}}} - {{{nameCamelCaseEntity}}}\");");
             sb.AppendLine($"");
-            sb.AppendLine($"            return result;");
+            sb.AppendLine($"            return {nameCamelCaseEntity};");
             sb.AppendLine($"        }}");
 
             return sb.ToString();
@@ -262,7 +275,7 @@ namespace Console.Services
 
             sb.AppendLine($"        public async Task<Pagination<{entity.Name}>> PaginateAsync(int offset, int limit, {parameters})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is paginating {entity.Name} - offset: {{offset}} - limit: {{limit}}{log}\");");
+            sb.AppendLine($"            _logger.LogDebug($\"User {{_authenticatedService.GetUserKey()}} is paginating {entity.Name} - offset: {{offset}} - limit: {{limit}}{log}\");");
             sb.AppendLine($"");
 
             foreach (var property in entity.Properties)
@@ -286,7 +299,7 @@ namespace Console.Services
                 }
             }
 
-            sb.AppendLine($"            var result = await _sqlService.QueryAsync<{entity.Name}>({entity.Name}Query.PAGINATE, CommandType.Text, new");
+            sb.AppendLine($"            var paginated = await _sqlService.QueryAsync<{entity.Name}>({entity.Name}Query.PAGINATE, CommandType.Text, new");
             sb.AppendLine($"            {{");
             sb.AppendLine($"                offset = offset,");
             sb.AppendLine($"                limit = limit,");
@@ -312,7 +325,7 @@ namespace Console.Services
             sb.AppendLine($"");
             sb.AppendLine($"            var total = await _sqlService.ExecuteScalarAsync<int>({entity.Name}Query.PAGINATE_COUNT, CommandType.Text);");
             sb.AppendLine($"");
-            sb.AppendLine($"            var pagination = new Pagination<{entity.Name}>(result, offset, limit, total);");
+            sb.AppendLine($"            var pagination = new Pagination<{entity.Name}>(paginated, offset, limit, total);");
             sb.AppendLine($"");
             sb.AppendLine($"            _logger.LogDebug($\"Got pagination, the informed filter has {{pagination.Itens.Count()}} results in database\");");
             sb.AppendLine($"");
@@ -334,16 +347,16 @@ namespace Console.Services
 
                 sb.AppendLine($"        public async Task<bool> ExistsBy{property.Name}Async({primitive} {nameCamelCaseProperty})");
                 sb.AppendLine($"        {{");
-                sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is searching for a match with {{{nameCamelCaseProperty}}} in column {property.Name} on {entity.Name} table\");");
+                sb.AppendLine($"            _logger.LogDebug($\"User {{_authenticatedService.GetUserKey()}} is searching for a match with {{{nameCamelCaseProperty}}} in column {property.Name} on {entity.Name} table\");");
                 sb.AppendLine($"");
-                sb.AppendLine($"            var result = await _sqlService.ExecuteScalarAsync<bool>({entity.Name}Query.EXISTS_BY_{property.Name.ToUpper()}, CommandType.Text, new");
+                sb.AppendLine($"            var exists = await _sqlService.ExecuteScalarAsync<bool>({entity.Name}Query.EXISTS_BY_{property.Name.ToUpper()}, CommandType.Text, new");
                 sb.AppendLine($"            {{");
                 sb.AppendLine($"                {property.Column} = {nameCamelCaseProperty}");
                 sb.AppendLine($"            }});");
                 sb.AppendLine($"");
-                sb.AppendLine($"            _logger.LogDebug(result ? \"Found a match\" : \"No match found\");");
+                sb.AppendLine($"            _logger.LogDebug(exists ? \"Found a match\" : \"No match found\");");
                 sb.AppendLine($"");
-                sb.AppendLine($"            return result;");
+                sb.AppendLine($"            return exists;");
                 sb.AppendLine($"        }}");
                 sb.AppendLine($"");
             }
@@ -369,17 +382,17 @@ namespace Console.Services
 
                     sb.AppendLine($"        public async Task<bool> ExistsBy{property.Name}AndDifferentThan{primaryKey.Name}Async({primitiveProperty} {camelCaseProperty}, {primitivePrimaryKey} {camelCasePrimaryKey})");
                     sb.AppendLine($"        {{");
-                    sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is searching for a match with {{{camelCaseProperty}}} in column {property.Name} on {entity.Name} table with a different {primaryKey.Name} than {{{camelCasePrimaryKey}}}\");");
+                    sb.AppendLine($"            _logger.LogDebug($\"User {{_authenticatedService.GetUserKey()}} is searching for a match with {{{camelCaseProperty}}} in column {property.Name} on {entity.Name} table with a different {primaryKey.Name} than {{{camelCasePrimaryKey}}}\");");
                     sb.AppendLine($"");
-                    sb.AppendLine($"            var result = await _sqlService.ExecuteScalarAsync<bool>({entity.Name}Query.EXISTS_BY_{property.Name.ToUpper()}, CommandType.Text, new");
+                    sb.AppendLine($"            var exists = await _sqlService.ExecuteScalarAsync<bool>({entity.Name}Query.EXISTS_BY_{property.Name.ToUpper()}_AND_DIFFERENT_{primaryKey.Name.ToUpper()}, CommandType.Text, new");
                     sb.AppendLine($"            {{");
                     sb.AppendLine($"                {property.Column} = {camelCaseProperty},");
                     sb.AppendLine($"                {primaryKey.Column} = {camelCasePrimaryKey}");
                     sb.AppendLine($"            }});");
                     sb.AppendLine($"");
-                    sb.AppendLine($"            _logger.LogDebug(result ? \"Found a match\" : \"No match found\");");
+                    sb.AppendLine($"            _logger.LogDebug(exists ? \"Found a match\" : \"No match found\");");
                     sb.AppendLine($"");
-                    sb.AppendLine($"            return result;");
+                    sb.AppendLine($"            return exists;");
                     sb.AppendLine($"        }}");
 
                     if (i != entity.Properties.Count - 1)

@@ -33,8 +33,7 @@ namespace Console.Services
             IFileServiceService serviceService,
             IFileValidatorService validatorService,
             IFileControllerService controllerService,
-            IFileService fileService
-        )
+            IFileService fileService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));

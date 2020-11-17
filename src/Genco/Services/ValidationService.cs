@@ -30,8 +30,7 @@ namespace Console.Services
             IValidator<Depends> dependsValidator,
             IValidator<Property> propertyValidator,
             IValidator<Validation> validationValidator,
-            IValidator<PreAction> preActionValidator
-        )
+            IValidator<PreAction> preActionValidator)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _projectValidator = projectValidator ?? throw new ArgumentNullException(nameof(projectValidator));

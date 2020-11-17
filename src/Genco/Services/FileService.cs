@@ -17,8 +17,7 @@ namespace Console.Services
         private readonly ILogger<FileService> _logger;
 
         public FileService(
-            ILogger<FileService> logger
-        )
+            ILogger<FileService> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

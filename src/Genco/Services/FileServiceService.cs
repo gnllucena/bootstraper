@@ -117,7 +117,7 @@ namespace Console.Services
 
             sb.AppendLine($"        public async Task<{entity.Name}> InsertAsync({entity.Name} {nameCamelCaseEntity})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is starting {{nameof({entity.Name}Service)}}.{{nameof(InsertAsync)}}\");");
+            sb.AppendLine($"            _logger.LogDebug($\"User {{_authenticatedService.GetUserKey()}} is starting {{nameof({entity.Name}Service)}}.{{nameof(InsertAsync)}}\");");
             
             if (entity.PreInserts != null)
             {
@@ -133,7 +133,7 @@ namespace Console.Services
 
             if (uniqueProperties.Any())
             {
-                sb.AppendLine($"            _validationService.Validate(_{nameCamelCaseEntity}Validator.Validate({nameCamelCaseEntity}), new List<(bool, string)>");
+                sb.AppendLine($"            _validationService.Validate(_{nameCamelCaseEntity}Validator.Validate({nameCamelCaseEntity}), new List<(bool, string, object, string)>");
                 sb.AppendLine($"            {{ ");
 
                 for (var i = 0; i <= uniqueProperties.Count() - 1; i++)
@@ -141,7 +141,7 @@ namespace Console.Services
                     var uniqueProperty = uniqueProperties[i];
                     var comma = i == uniqueProperties.Count - 1 ? "" : ",";
 
-                    sb.AppendLine($"                (await _{nameCamelCaseEntity}Repository.ExistsBy{uniqueProperty.Name}Async({nameCamelCaseEntity}.{uniqueProperty.Name}), $\"{uniqueProperty.Name} {{{nameCamelCaseEntity}.{uniqueProperty.Name}}} already in use\"){comma}");
+                    sb.AppendLine($"                (await _{nameCamelCaseEntity}Repository.ExistsBy{uniqueProperty.Name}Async({nameCamelCaseEntity}.{uniqueProperty.Name}), \"{uniqueProperty.Name}\", {nameCamelCaseEntity}.{uniqueProperty.Name}, $\"{uniqueProperty.Name} {{{nameCamelCaseEntity}.{uniqueProperty.Name}}} already in use\"){comma}");
                 }
 
                 sb.AppendLine($"            }});");
@@ -154,11 +154,11 @@ namespace Console.Services
             sb.AppendLine($"");
             sb.AppendLine($"            var {nameCamelCasePrimaryKey} = await _{nameCamelCaseEntity}Repository.InsertAsync({nameCamelCaseEntity});");
             sb.AppendLine($"");
-            sb.AppendLine($"            var result = await GetAsync({nameCamelCasePrimaryKey});");
+            sb.AppendLine($"            var new{entity.Name} = await GetAsync({nameCamelCasePrimaryKey});");
             sb.AppendLine($"");
             sb.AppendLine($"            _logger.LogDebug($\"End of {{nameof({entity.Name}Service)}}.{{nameof(InsertAsync)}}\");");
             sb.AppendLine($"");
-            sb.AppendLine($"            return result;");
+            sb.AppendLine($"            return new{entity.Name};");
             sb.AppendLine($"        }}");
 
             return sb.ToString();
@@ -175,7 +175,7 @@ namespace Console.Services
 
             sb.AppendLine($"        public async Task<{entity.Name}> UpdateAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey}, {entity.Name} {nameCamelCaseEntity})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is starting {{nameof({entity.Name}Service)}}.{{nameof(UpdateAsync)}}\");");
+            sb.AppendLine($"            _logger.LogDebug($\"User {{_authenticatedService.GetUserKey()}} is starting {{nameof({entity.Name}Service)}}.{{nameof(UpdateAsync)}}\");");
             
             if (entity.PreUpdates != null)
             {
@@ -191,7 +191,7 @@ namespace Console.Services
 
             if (uniqueProperties.Any())
             {
-                sb.AppendLine($"            _validationService.Validate(_{nameCamelCaseEntity}Validator.Validate({nameCamelCaseEntity}), new List<(bool, string)>");
+                sb.AppendLine($"            _validationService.Validate(_{nameCamelCaseEntity}Validator.Validate({nameCamelCaseEntity}), new List<(bool, string, object, string)>");
                 sb.AppendLine($"            {{ ");
 
                 for (var i = 0; i <= uniqueProperties.Count() - 1; i++)
@@ -202,7 +202,7 @@ namespace Console.Services
                     {
                         var comma = i == uniqueProperties.Count - 1 ? "" : ",";
 
-                        sb.AppendLine($"                (await _{nameCamelCaseEntity}Repository.ExistsBy{uniqueProperty.Name}AndDifferentThan{primaryKey.Name}Async({nameCamelCaseEntity}.{uniqueProperty.Name}, {nameCamelCasePrimaryKey}), $\"{uniqueProperty.Name} {{{nameCamelCaseEntity}.{uniqueProperty.Name}}} already in use\"){comma}");
+                        sb.AppendLine($"                (await _{nameCamelCaseEntity}Repository.ExistsBy{uniqueProperty.Name}AndDifferentThan{primaryKey.Name}Async({nameCamelCaseEntity}.{uniqueProperty.Name}, {nameCamelCasePrimaryKey}), \"{uniqueProperty.Name}\", {nameCamelCaseEntity}.{uniqueProperty.Name}, $\"{uniqueProperty.Name} {{{nameCamelCaseEntity}.{uniqueProperty.Name}}} already in use\"){comma}");
                     }
                 }
 
@@ -217,11 +217,11 @@ namespace Console.Services
             sb.AppendLine($"");
             sb.AppendLine($"            await _{nameCamelCaseEntity}Repository.UpdateAsync({nameCamelCasePrimaryKey}, {nameCamelCaseEntity});");
             sb.AppendLine($"");
-            sb.AppendLine($"            var result = await GetAsync({nameCamelCasePrimaryKey});");
+            sb.AppendLine($"            var updated{entity.Name} = await GetAsync({nameCamelCasePrimaryKey});");
             sb.AppendLine($"");
             sb.AppendLine($"            _logger.LogDebug($\"End of {{nameof({entity.Name}Service)}}.{{nameof(UpdateAsync)}}\");");
             sb.AppendLine($"");
-            sb.AppendLine($"            return result;");
+            sb.AppendLine($"            return updated{entity.Name};");
             sb.AppendLine($"        }}");
 
             return sb.ToString();
@@ -237,7 +237,7 @@ namespace Console.Services
 
             sb.AppendLine($"        public async Task DeleteAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is starting {{nameof({entity.Name}Service)}}.{{nameof(DeleteAsync)}}\");");
+            sb.AppendLine($"            _logger.LogDebug($\"User {{_authenticatedService.GetUserKey()}} is starting {{nameof({entity.Name}Service)}}.{{nameof(DeleteAsync)}}\");");
             sb.AppendLine($"");
             sb.AppendLine($"            await _{nameCamelCaseEntity}Repository.DeleteAsync({nameCamelCasePrimaryKey});");
             sb.AppendLine($"");
@@ -257,13 +257,13 @@ namespace Console.Services
 
             sb.AppendLine($"        public async Task<{entity.Name}> GetAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is starting {{nameof({entity.Name}Service)}}.{{nameof(GetAsync)}}\");");
+            sb.AppendLine($"            _logger.LogDebug($\"User {{_authenticatedService.GetUserKey()}} is starting {{nameof({entity.Name}Service)}}.{{nameof(GetAsync)}}\");");
             sb.AppendLine($"");
-            sb.AppendLine($"            var result = await _{nameCamelCaseEntity}Repository.GetAsync({nameCamelCasePrimaryKey});");
+            sb.AppendLine($"            var {nameCamelCaseEntity} = await _{nameCamelCaseEntity}Repository.GetAsync({nameCamelCasePrimaryKey});");
             sb.AppendLine($"");
             sb.AppendLine($"            _logger.LogDebug($\"End of {{nameof({entity.Name}Service)}}.{{nameof(GetAsync)}}\");");
             sb.AppendLine($"");
-            sb.AppendLine($"            return result;");
+            sb.AppendLine($"            return {nameCamelCaseEntity};");
             sb.AppendLine($"        }}");
 
             return sb.ToString();
@@ -280,18 +280,18 @@ namespace Console.Services
 
             sb.AppendLine($"        public async Task<Pagination<{entity.Name}>> PaginateAsync(int offset, int limit, {parameters})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            _logger.LogInformation($\"User {{_authenticatedService.GetUserKey()}} is starting {{nameof({entity.Name}Service)}}.{{nameof(PaginateAsync)}}\");");
+            sb.AppendLine($"            _logger.LogDebug($\"User {{_authenticatedService.GetUserKey()}} is starting {{nameof({entity.Name}Service)}}.{{nameof(PaginateAsync)}}\");");
             sb.AppendLine($"");
             sb.AppendLine($"            if (limit > 100)");
             sb.AppendLine($"            {{");
             sb.AppendLine($"                limit = 100;");
             sb.AppendLine($"            }}");
             sb.AppendLine($"");
-            sb.AppendLine($"            var result = await _{nameCamelCaseEntity}Repository.PaginateAsync(offset, limit, {calling});");
+            sb.AppendLine($"            var pagination = await _{nameCamelCaseEntity}Repository.PaginateAsync(offset, limit, {calling});");
             sb.AppendLine($"");
             sb.AppendLine($"            _logger.LogDebug($\"End of {{nameof({entity.Name}Service)}}.{{nameof(PaginateAsync)}}\");");
             sb.AppendLine($"");
-            sb.AppendLine($"            return result;");
+            sb.AppendLine($"            return pagination;");
             sb.AppendLine($"        }}");
 
             return sb.ToString();

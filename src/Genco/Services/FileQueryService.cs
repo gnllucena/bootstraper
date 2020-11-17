@@ -1,4 +1,5 @@
 ﻿using Console.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,7 +37,7 @@ namespace Console.Services
             sb.AppendLine($"{{");
             sb.AppendLine($"    public class {entity.Name}Query");
             sb.AppendLine($"    {{");
-            sb.AppendLine(GenerateInsertQuery(entity, primaryKey));
+            sb.AppendLine(GenerateInsertQuery(project, entity, primaryKey));
             sb.AppendLine(GenerateUpdateQuery(entity, primaryKey));
             sb.AppendLine(GenerateDeleteQuery(entity, primaryKey));
             sb.AppendLine(GenerateListQuery(entity));
@@ -56,7 +57,7 @@ namespace Console.Services
             };
         }
 
-        public string GenerateInsertQuery(Entity entity, Property primaryKey)
+        public string GenerateInsertQuery(Project project, Entity entity, Property primaryKey)
         {
             var sb = new StringBuilder();
 
@@ -68,9 +69,12 @@ namespace Console.Services
             {
                 var property = entity.Properties[i];
 
-                var comma = i == entity.Properties.Count - 1 ? "" : ",";
+                if (!property.IsPrimaryKey)
+                {
+                    var comma = i == entity.Properties.Count - 1 ? "" : ",";
 
-                sb.AppendLine($"                        {property.Column}{comma}");
+                    sb.AppendLine($"                        {property.Column}{comma}");
+                }
             }
 
             sb.AppendLine($"                       )");
@@ -80,14 +84,26 @@ namespace Console.Services
             {
                 var property = entity.Properties[i];
 
-                var comma = i == entity.Properties.Count - 1 ? "" : ",";
+                if (!property.IsPrimaryKey)
+                {
+                    var comma = i == entity.Properties.Count - 1 ? "" : ",";
 
-                sb.AppendLine($"                        @{property.Column}{comma}");
+                    sb.AppendLine($"                        @{property.Column}{comma}");
+                }
             }
 
             sb.AppendLine($"                       );");
             sb.AppendLine($"");
-            sb.AppendLine($"            SELECT LAST_INSERT_ID() as {primaryKey.Column}");
+
+            switch (project.Database.ToLower())
+            {
+                case Constants.DATABASE_MYSQL:
+                    sb.AppendLine($"            SELECT LAST_INSERT_ID() as {primaryKey.Column}");
+                    break;
+                default:
+                    throw new InvalidOperationException($"Database \"{project.Database}\" not implemented");
+            }
+
             sb.AppendLine($"        \";");
             
             return sb.ToString();

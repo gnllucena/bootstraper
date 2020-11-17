@@ -30,6 +30,9 @@ namespace Console
         public const string DEPENDS_NOTEMPTY = "notempty";
         public const string DEPENDS_EQUALTOZERO = "equaltozero";
 
+        public const string DATABASE_MYSQL = "mysql";
+        public const string DATABASE_ORACLE = "oracle";
+
         public static readonly List<string> PROJECT_TYPE = new List<string>
         {
             "API"

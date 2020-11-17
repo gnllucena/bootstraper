@@ -89,9 +89,9 @@ namespace Console.Services
             sb.AppendLine($"        public async Task<ActionResult> Post(");
             sb.AppendLine($"            [SwaggerParameter(\"The new {entity.Name}\")][FromBody] {entity.Name} {nameCamelCaseEntity})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            var result = await _{nameCamelCaseEntity}Service.InsertAsync({nameCamelCaseEntity});");
+            sb.AppendLine($"            var new{entity.Name} = await _{nameCamelCaseEntity}Service.InsertAsync({nameCamelCaseEntity});");
             sb.AppendLine($"");
-            sb.AppendLine($"            return Created(new Uri($\"{{Request.Path}}/{{result.Id}}\", UriKind.Relative), result);");
+            sb.AppendLine($"            return Created(new Uri($\"{{Request.Path}}/{{new{entity.Name}.Id}}\", UriKind.Relative), new{entity.Name});");
             sb.AppendLine($"        }}");
 
             return sb.ToString();
@@ -116,9 +116,9 @@ namespace Console.Services
             sb.AppendLine($"            [SwaggerParameter(\"The {entity.Name} {primaryKey.Name}\")][BindRequired] {primitive} {nameCamelCasePrimaryKey},");
             sb.AppendLine($"            [SwaggerParameter(\"The {entity.Name} to be updated\")][FromBody] {entity.Name} {nameCamelCaseEntity})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            var result = await _{nameCamelCaseEntity}Service.UpdateAsync({nameCamelCasePrimaryKey}, {nameCamelCaseEntity});");
+            sb.AppendLine($"            var updated{entity.Name} = await _{nameCamelCaseEntity}Service.UpdateAsync({nameCamelCasePrimaryKey}, {nameCamelCaseEntity});");
             sb.AppendLine($"");
-            sb.AppendLine($"            return Ok(result);");
+            sb.AppendLine($"            return Ok(updated{entity.Name});");
             sb.AppendLine($"        }}");
 
             return sb.ToString();
@@ -168,9 +168,9 @@ namespace Console.Services
             sb.AppendLine($"        public async Task<ActionResult> Get(");
             sb.AppendLine($"            [SwaggerParameter(\"The {entity.Name} {primaryKey.Name}\")][BindRequired] {primitive} {nameCamelCasePrimaryKey})");
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            var result = await _{nameCamelCaseEntity}Service.GetAsync({nameCamelCasePrimaryKey});");
+            sb.AppendLine($"            var {nameCamelCaseEntity} = await _{nameCamelCaseEntity}Service.GetAsync({nameCamelCasePrimaryKey});");
             sb.AppendLine($"");
-            sb.AppendLine($"            return Ok(result);");
+            sb.AppendLine($"            return Ok({nameCamelCaseEntity});");
             sb.AppendLine($"        }}");
 
             return sb.ToString();
@@ -221,9 +221,9 @@ namespace Console.Services
             }
 
             sb.AppendLine($"        {{");
-            sb.AppendLine($"            var result = await _{nameCamelCaseEntity}Service.PaginateAsync(offset, limit, {parameters});");
+            sb.AppendLine($"            var pagination = await _{nameCamelCaseEntity}Service.PaginateAsync(offset, limit, {parameters});");
             sb.AppendLine($"");
-            sb.AppendLine($"            return Ok(result);");
+            sb.AppendLine($"            return Ok(pagination);");
             sb.AppendLine($"        }}");
 
             return sb.ToString();
