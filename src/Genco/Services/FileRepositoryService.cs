@@ -42,6 +42,7 @@ namespace Console.Services
             sb.AppendLine($"using System.Data;");
             sb.AppendLine($"using System.Linq;");
             sb.AppendLine($"using System.Threading.Tasks;");
+            sb.AppendLine($"using System.Collections.Generic;");
             sb.AppendLine($"");
             sb.AppendLine($"namespace {project.Name}.Repositories");
             sb.AppendLine($"{{");
@@ -67,6 +68,7 @@ namespace Console.Services
             sb.AppendLine(GenerateUpdateMethod(entity, primaryKey));
             sb.AppendLine(GenerateDeleteMethod(entity, primaryKey));
             sb.AppendLine(GenerateGetMethod(entity, primaryKey));
+            sb.AppendLine(GenerateListMethod(entity));
             sb.AppendLine(GeneratePaginationMethod(entity));
             sb.Append(GenerateExistsByPropertyMethod(entity));
             sb.Append(GenerateExistsByPropertyAndDifferentPrimaryKeyMethod(entity, primaryKey));
@@ -94,6 +96,7 @@ namespace Console.Services
             sb.AppendLine($"        Task UpdateAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey}, {entity.Name} {entity.Name.ToLower()});");
             sb.AppendLine($"        Task DeleteAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey});");
             sb.AppendLine($"        Task<{entity.Name}> GetAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey});");
+            sb.AppendLine($"        Task<IList<{entity.Name}>> ListAsync();");
             sb.AppendLine($"        Task<Pagination<{entity.Name}>> PaginateAsync(int offset, int limit, {parameters});");
 
             foreach (var property in entity.Properties)
@@ -245,6 +248,24 @@ namespace Console.Services
             sb.AppendLine($"            _logger.LogDebug($\"Got {entity.Name} {{{nameCamelCasePrimaryKey}}} - {{{nameCamelCaseEntity}}}\");");
             sb.AppendLine($"");
             sb.AppendLine($"            return {nameCamelCaseEntity};");
+            sb.AppendLine($"        }}");
+
+            return sb.ToString();
+        }
+
+        public string GenerateListMethod(Entity entity)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"        public async Task<IList<{entity.Name}>> ListAsync()");
+            sb.AppendLine($"        {{");
+            sb.AppendLine($"            _logger.LogDebug($\"User {{_authenticatedService.GetUserKey()}} is getting all {entity.Name} data\");");
+            sb.AppendLine($"");
+            sb.AppendLine($"            var list = await _sqlService.QueryAsync<{entity.Name}>({entity.Name}Query.LIST, CommandType.Text);");
+            sb.AppendLine($"");
+            sb.AppendLine($"            _logger.LogDebug($\"Got all {entity.Name}\");");
+            sb.AppendLine($"");
+            sb.AppendLine($"            return list;");
             sb.AppendLine($"        }}");
 
             return sb.ToString();
