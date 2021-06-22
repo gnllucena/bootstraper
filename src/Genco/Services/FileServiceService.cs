@@ -74,6 +74,8 @@ namespace Console.Services
             sb.AppendLine($"");
             sb.Append(GenerateGetMethod(entity, primaryKey));
             sb.AppendLine($"");
+            sb.Append(GenerateListMethod(entity));
+            sb.AppendLine($"");
             sb.Append(GeneratePaginateMethod(entity));
             sb.AppendLine($"    }}");
             sb.AppendLine($"}}");
@@ -101,6 +103,7 @@ namespace Console.Services
             sb.AppendLine($"        Task<{entity.Name}> UpdateAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey}, {entity.Name} {nameCamelCaseEntity});");
             sb.AppendLine($"        Task DeleteAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey});");
             sb.AppendLine($"        Task<{entity.Name}> GetAsync({primitivePrimaryKey} {nameCamelCasePrimaryKey});");
+            sb.AppendLine($"        Task<IList<{entity.Name}>> ListAsync();");
             sb.AppendLine($"        Task<Pagination<{entity.Name}>> PaginateAsync(int offset, int limit, {parameters});");
             sb.AppendLine($"    }}");
 
@@ -264,6 +267,26 @@ namespace Console.Services
             sb.AppendLine($"            _logger.LogDebug($\"End of {{nameof({entity.Name}Service)}}.{{nameof(GetAsync)}}\");");
             sb.AppendLine($"");
             sb.AppendLine($"            return {nameCamelCaseEntity};");
+            sb.AppendLine($"        }}");
+
+            return sb.ToString();
+        }
+
+        private string GenerateListMethod(Entity entity)
+        {
+            var nameCamelCaseEntity = Functions.GetCamelCaseValue(entity.Name);
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"        public async Task<IList<{entity.Name}>> ListAsync()");
+            sb.AppendLine($"        {{");
+            sb.AppendLine($"            _logger.LogDebug($\"User {{_authenticatedService.GetUserKey()}} is starting {{nameof({entity.Name}Service)}}.{{nameof(ListAsync)}}\");");
+            sb.AppendLine($"");
+            sb.AppendLine($"            var list = await _{nameCamelCaseEntity}Repository.ListAsync();");
+            sb.AppendLine($"");
+            sb.AppendLine($"            _logger.LogDebug($\"End of {{nameof({entity.Name}Service)}}.{{nameof(ListAsync)}}\");");
+            sb.AppendLine($"");
+            sb.AppendLine($"            return list;");
             sb.AppendLine($"        }}");
 
             return sb.ToString();
